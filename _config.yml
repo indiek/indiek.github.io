@@ -1,1 +1,17 @@
-theme: jekyll-theme-cayman
+title: "FOSS Archival Format — Documentation"
+description: "Reference documentation for the FOSS Archival Format (open archival format for FOSS projects)."
+baseurl: ""
+url: "https://indiek.github.io"
+theme: ""
+markdown: kramdown
+plugins: []
+permalink: pretty
+collections:
+	docs:
+		output: true
+defaults:
+	- scope:
+			path: ""
+			type: "docs"
+		values:
+			layout: "default"

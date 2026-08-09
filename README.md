@@ -1,13 +1,7 @@
-# Welcome to IndieK's documentation
-IndieK is currently a collection of Python modules under development.
+# FOSS Archival Format — Documentation
 
-## IndieK as a CLI
-This is how IndieK started ---> [Go to documentation](https://indiek.github.io/indiek.cli/)
+This repository now hosts the official documentation for the FOSS Archival Format.
 
-## IndieK as a Web App
----> [Go to repo](https://github.com/indiek/indiek.web)  
----> [Go to documentation](https://indiek.github.io/indiek.web/) (might not be quite ready yet)  
----> [Try the web app out](www.indiekweb.com) (might not be quite ready yet)
+Visit the site for specification, examples, and contribution guidelines.
 
-## IndieK Core
----> [Go to repo](https://github.com/indiek/indiek.core)
+Site source: the `docs/` folder contains the documentation pages.
