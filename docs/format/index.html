@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Format specification — FOSS Archival Format — Documentation</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="wrap">
+            <h1 class="site-title"><a href="/">FOSS Archival Format — Documentation</a></h1>
+            <nav class="site-nav">
+                <a href="/">Home</a>
+                <a href="/docs/intro.html">Introduction</a>
+                <a href="/docs/format.html">Format</a>
+                <a href="/docs/contributing.html">Contributing</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <article class="content">
+            <h2 id="overview">Overview</h2>
+
+<p>A FAF archive is a directory containing:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">manifest.json</code> — JSON metadata describing the archive contents and provenance.</li>
+  <li><code class="language-plaintext highlighter-rouge">source/</code> — the source tree (preferably at a tagged revision).</li>
+  <li><code class="language-plaintext highlighter-rouge">patches/</code> — optional patches applied to the source for archival reasons.</li>
+  <li><code class="language-plaintext highlighter-rouge">licenses/</code> — SPDX-compatible license documents.</li>
+</ol>
+
+<h3 id="manifest-schema-example">Manifest schema (example)</h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"faf-1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"example-project"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-01T00:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"sources"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="nl">"type"</span><span class="p">:</span><span class="s2">"git"</span><span class="p">,</span><span class="nl">"url"</span><span class="p">:</span><span class="s2">"https://github.com/example/repo.git"</span><span class="p">,</span><span class="nl">"ref"</span><span class="p">:</span><span class="s2">"v1.0.0"</span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>See the examples section for complete sample archives.</p>
+
+        </article>
+        <aside class="sidebar">
+            <h3>On this site</h3>
+            <ul>
+                <li><a href="/docs/intro.html">Introduction</a></li>
+                <li><a href="/docs/format.html">Format specification</a></li>
+                <li><a href="/docs/contributing.html">Contributing</a></li>
+            </ul>
+        </aside>
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrap">© FOSS Archival Format — Documentation</div>
+    </footer>
+</body>
+
+</html>
