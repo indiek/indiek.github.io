@@ -1,4 +1,4 @@
-# FOSS Archival Format — Documentation
+# IndieK Archival Format — Documentation
 
 This repository now hosts the official documentation for the FOSS Archival Format.
 
