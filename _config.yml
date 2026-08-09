@@ -1,7 +1,7 @@
 title: "IndieK Archival Format — Documentation"
 description: "Reference documentation for the FOSS Archival Format (open archival format for FOSS projects)."
 baseurl: ""
-url: "https://indiek.github.io"
+url: "https://indiek.org"
 markdown: kramdown
 plugins: []
 permalink: pretty
