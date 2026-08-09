@@ -5,7 +5,7 @@ title: "IndieK Archival Format"
 
 ## Welcome
 
-The IndieK Archival Format is an open, minimal, and portable format for packaging and documenting Free/Open-Source Software archives for long-term preservation.
+The IndieK Archival Format is an open, minimal, and portable format for packaging knowledge graph archives for long-term preservation.
 
 - [Introduction](/docs/intro/index.html)
 - [Format specification](/docs/format/index.html)
