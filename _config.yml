@@ -7,11 +7,11 @@ markdown: kramdown
 plugins: []
 permalink: pretty
 collections:
-	docs:
-		output: true
+  docs:
+    output: true
 defaults:
-	- scope:
-			path: ""
-			type: "docs"
-		values:
-			layout: "default"
+  - scope:
+      path: ""
+      type: "docs"
+    values:
+      layout: "default"
