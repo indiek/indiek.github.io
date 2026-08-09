@@ -1,7 +1,7 @@
 # IndieK Archival Format — Documentation
 
-This repository now hosts the official documentation for the FOSS Archival Format.
+This repository hosts the official documentation for the IndieK Archival Format.
 
-Visit the site for specification, examples, and contribution guidelines.
+Visit the [site](https://indiek.org) for specification, examples, and contribution guidelines.
 
 Site source: the `docs/` folder contains the documentation pages.

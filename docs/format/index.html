@@ -4,14 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Format specification — FOSS Archival Format — Documentation</title>
+    <title>Format specification — IndieK Archival Format — Documentation</title>
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 
 <body>
     <header class="site-header">
         <div class="wrap">
-            <h1 class="site-title"><a href="/">FOSS Archival Format — Documentation</a></h1>
+            <h1 class="site-title"><a href="/">IndieK Archival Format — Documentation</a></h1>
             <nav class="site-nav">
                 <a href="/">Home</a>
                 <a href="/docs/intro.html">Introduction</a>
@@ -25,25 +25,436 @@
         <article class="content">
             <h2 id="overview">Overview</h2>
 
-<p>A FAF archive is a directory containing:</p>
+<p>A IAF archive is a directory containing:</p>
 
 <ol>
-  <li><code class="language-plaintext highlighter-rouge">manifest.json</code> — JSON metadata describing the archive contents and provenance.</li>
-  <li><code class="language-plaintext highlighter-rouge">source/</code> — the source tree (preferably at a tagged revision).</li>
-  <li><code class="language-plaintext highlighter-rouge">patches/</code> — optional patches applied to the source for archival reasons.</li>
-  <li><code class="language-plaintext highlighter-rouge">licenses/</code> — SPDX-compatible license documents.</li>
+  <li><code class="language-plaintext highlighter-rouge">MANIFEST.json</code> — JSON metadata describing the archival format.</li>
+  <li><code class="language-plaintext highlighter-rouge">events/</code> — an append-only Merkle DAG event log enabling anyone to reconstruct the knowledge graph (without the underlying data attached to the nodes and edges).</li>
+  <li><code class="language-plaintext highlighter-rouge">blobs/</code> — optional blob store containing content-addressed binary data attached to the nodes and edges of the graph.</li>
+  <li><code class="language-plaintext highlighter-rouge">meta/</code> — an append-only merkle DAG event log that only contains metadata corresponding to tags.</li>
 </ol>
+
+<p>A small example archive can look like this for example:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>archive/
+├── blobs
+│   └── sha256
+│       └── 26
+│           └── 09
+│               └── 2609c7c28788898a337c063ff1c3b92275832bddeda014a790d109fad3ba85e2
+├── events
+│   └── 2026
+│       └── 08
+│           └── 09
+│               └── events.ndjson
+├── MANIFEST.json
+└── meta
+    └── events
+        └── 2026
+            └── 08
+                └── 09
+                    └── events.ndjson
+
+</code></pre></div></div>
 
 <h3 id="manifest-schema-example">Manifest schema (example)</h3>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"faf-1"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"example-project"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-01T00:00:00Z"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"sources"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="p">{</span><span class="nl">"type"</span><span class="p">:</span><span class="s2">"git"</span><span class="p">,</span><span class="nl">"url"</span><span class="p">:</span><span class="s2">"https://github.com/example/repo.git"</span><span class="p">,</span><span class="nl">"ref"</span><span class="p">:</span><span class="s2">"v1.0.0"</span><span class="p">}</span><span class="w">
-  </span><span class="p">]</span><span class="w">
+  </span><span class="nl">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IndieK Public Archive"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"format_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This MANIFEST.json documents the layout and schemas of an IndieK archive.  It is intended to allow any consumer to parse the archive independently of the original software, now or in the future."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"authors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"public_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"51e6d165f6f2db95f08fe87b577b4c9fc9d5be9b878f87fdb1d1a1a57d5eefbb"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"algorithm"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ed25519"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"blob_store"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Content-addressed blob store.  Every blob is immutable once written."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"root"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;archive_root&gt;/blobs/sha256/"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"path_pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;root&gt;/&lt;hex[0:2]&gt;/&lt;hex[2:4]&gt;/&lt;sha256_hex&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"blobs/sha256/ab/cd/abcd1234...ef"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"notes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"The filename is the full 64-character SHA-256 hex digest of the blob bytes."</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"The two-level sharding (first 2 + next 2 hex chars) keeps directories small."</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"To retrieve a blob referenced by 'sha256:XXXX' in an event, strip the 'sha256:' prefix and navigate to blobs/sha256/&lt;XXXX[0:2]&gt;/&lt;XXXX[2:4]&gt;/&lt;XXXX&gt;."</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"event_log"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Append-only event log stored as date-sharded NDJSON files.  Reading ALL files in chronological order (by filesystem path) produces the complete, ordered event sequence."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"base_event_log_root"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;archive_root&gt;/events/"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"meta_event_log_root"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;archive_root&gt;/meta/events/"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"path_pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;log_root&gt;/YYYY/MM/DD/events.ndjson"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"file_format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NDJSON (one JSON object per line, UTF-8 encoded)"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ordering"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sort all ndjson file paths lexicographically before reading.  Within a file, events are in append order (top = oldest)."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"chain_integrity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Each event's header.prev_hash is the SHA-256 of the *entire* preceding event JSON (keys sorted, compact).  The genesis event has prev_hash=null.  The hash of the final event is the canonical unique identifier for the archive at that point in time: two archives are identical iff their last event hashes match."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"signature_algorithm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"signing_curve"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ed25519"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"library_reference"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PyNaCl / libsodium"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"what_is_signed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SHA-256 digest of the event body serialised as compact JSON with keys sorted alphabetically (json.dumps(body, sort_keys=True))."</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"signature_encoding"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lowercase hex string"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"schemas"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"EventHeader"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Header present in every event and meta-event."</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Format version string (for example '2.0'). Consumers MUST reject events whose version they do not recognise."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"prev_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SHA-256 hex digest (64 lower-case hex characters) of the *entire* preceding event JSON object, serialised with keys sorted alphabetically and no extra whitespace.  null for the genesis event."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ISO-8601 datetime with timezone"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wall-clock time at which the event was written by the author."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"author"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"64-character hex-encoded Ed25519 public key of the event author.  This key MUST appear in MANIFEST.json &gt; authors."</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"EventBody"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Body of a base-network event.  Exactly one of the body types below is present, discriminated by the body_type field."</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"body_types"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"node"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"discriminator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"body_type = 'node'"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"body_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"create_node"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"node_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unique identifier for the node."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional human-readable title."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"media_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"enum"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"text/plain; charset=utf-8"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"text/markdown; charset=utf-8"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"image/tiff"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"image/png"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"image/jpeg"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"application/pdf; profile=pdfa"</span><span class="w">
+              </span><span class="p">],</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Required for managed and local_file resources; optional URI hint."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"resource_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"enum"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"managed"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"uri"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"local_file"</span><span class="w">
+              </span><span class="p">],</span><span class="w">
+              </span><span class="nl">"default"</span><span class="p">:</span><span class="w"> </span><span class="s2">"managed"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Missing in format 1.0 events implies managed."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"blob_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^sha256:[0-9a-f]{64}$"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Content-address of the managed blob. Present only when resource_type is managed."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"uri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Required external URI when resource_type is uri."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Required local path when resource_type is local_file."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"file_size"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"integer | null"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"minimum"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Verified byte length for local_file."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"file_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^sha256:[0-9a-f]{64}$"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SHA-256 fingerprint for local_file."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"last_verified"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ISO-8601 datetime"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Time local_file metadata was last verified."</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="nl">"resource_rules"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"managed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"requires blob_hash and media_type; excludes uri/local-file fields"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"requires uri; media_type is an optional hint; excludes blob_hash/local-file fields"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"local_file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"requires path, file_size, file_hash, last_verified, and media_type; excludes uri/blob_hash"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"edge"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"discriminator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"body_type = 'edge'"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"body_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"edge"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"create_edge"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"edge_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"source_node"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node_id of the edge's source node."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"target_node"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node_id of the edge's target node."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"resource_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.resource_type"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"media_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.media_type"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"blob_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.blob_hash"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"uri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.uri"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.path"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"file_size"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.file_size"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"file_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.file_hash"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"last_verified"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.last_verified"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"supersede_node"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"discriminator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"body_type = 'supersede_node'"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"body_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"supersede_node"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"supersede_node"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"node_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ID of an existing node to supersede."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"resource_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.resource_type"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"media_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.media_type"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"blob_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.blob_hash"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"uri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.uri"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.path"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"file_size"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.file_size"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"file_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.file_hash"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"last_verified"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.last_verified"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"supersede_edge"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"discriminator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"body_type = 'supersede_edge'"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"body_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"supersede_edge"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"supersede_edge"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"edge_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ID of an existing edge to supersede."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"source_node"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must equal the existing edge source."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"target_node"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must equal the existing edge target."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"resource_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.resource_type"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"media_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.media_type"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"blob_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.blob_hash"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"uri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.uri"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.path"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"file_size"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.file_size"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"file_hash"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.file_hash"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"last_verified"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node.last_verified"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"MetaEventBody"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Body of a meta-network event.  The meta-network encodes node/edge tagging as a graph of its own.  body_type discriminates the variant."</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"body_types"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"tag"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"discriminator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"body_type = 'tag'"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"event_types"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"create_node_tag"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"create_edge_tag"</span><span class="w">
+          </span><span class="p">],</span><span class="w">
+          </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"body_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tag"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"enum"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"create_node_tag"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"create_edge_tag"</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"node_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"representation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"discriminator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"body_type = 'representation'"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"event_types"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"create_node_representation"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"create_edge_representation"</span><span class="w">
+          </span><span class="p">],</span><span class="w">
+          </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A shadow node in the meta-network that stands for a base-network node or edge, allowing tags to be attached via meta-edges."</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"body_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"representation"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"enum"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"create_node_representation"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"create_edge_representation"</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"node_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"underlying_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ID of the base-network node or edge being represented."</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"edge"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"discriminator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"body_type = 'edge'"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"event_types"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"set_node_tag"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"set_edge_tag"</span><span class="w">
+          </span><span class="p">],</span><span class="w">
+          </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A directed edge in the meta-network from a tag node to a representation node, meaning: 'this tag is applied to that item'."</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"body_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"edge"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"event_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"enum"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"set_node_tag"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"set_edge_tag"</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"edge_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"source_node"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node_id of the tag."</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"target_node"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UUID v7 string"</span><span class="p">,</span><span class="w">
+              </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node_id of the representation."</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"EventModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Top-level structure of every NDJSON line in the base event log."</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"header"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EventHeader"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EventBody"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"signature"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string | null"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hex-encoded Ed25519 signature produced by signing the SHA-256 digest of the body serialised as compact JSON with keys sorted alphabetically."</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"MetaEventModel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Top-level structure of every NDJSON line in the meta event log."</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"header"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EventHeader"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MetaEventBody"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"signature"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EventModel.signature"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
