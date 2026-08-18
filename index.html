@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>IndieK Archival Format — IndieK Archival Format — Documentation</title>
+    <title>IndieK — IndieK Archival Format — Documentation</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     
     <script defer src="https://cloud.umami.is/script.js"
@@ -27,18 +27,116 @@
 
     <main class="wrap">
         <article class="content">
-            <h2 id="welcome">Welcome</h2>
+            <h1 id="indiek">IndieK</h1>
 
-<p>The IndieK Archival Format is an open, minimal, and portable format for packaging knowledge graph archives for long-term preservation.</p>
+<p><strong>IndieK is a knowledge graph archival format and the ecosystem of tools built
+around it.</strong></p>
+
+<p>Its mission is to <strong>foster knowledge creation and knowledge management</strong> — both
+inside a single mind and between minds that disagree. There is a big difference
+between having a ton of information online and <em>understanding</em> a complex topic
+at a technical, individual level. IndieK is built for the second thing.
+Read the <a href="/docs/mission/">full mission and vision</a>.</p>
+
+<h2 id="start-here">Start here</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>If you want to…</th>
+      <th>Go to</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Understand what IndieK is and why</td>
+      <td><a href="/docs/mission/">Mission &amp; Vision</a></td>
+    </tr>
+    <tr>
+      <td>See all the products and how they fit</td>
+      <td><a href="/docs/intro/">Introduction</a></td>
+    </tr>
+    <tr>
+      <td>Implement or parse an archive</td>
+      <td><a href="/docs/format/">Format specification</a></td>
+    </tr>
+    <tr>
+      <td>Use the reference tool</td>
+      <td><a href="/docs/cli/">CLI reference</a></td>
+    </tr>
+    <tr>
+      <td>Contribute</td>
+      <td><a href="/docs/contributing/">Contributing</a></td>
+    </tr>
+    <tr>
+      <td>Check the legal terms</td>
+      <td><a href="/docs/license/">Licenses</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="an-archive-in-thirty-seconds">An archive in thirty seconds</h2>
+
+<p>An IndieK archive is a <strong>plain directory</strong>. No database, no server, no
+proprietary container:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-archive/
+├── MANIFEST.json          # self-describing: layout + schemas
+├── events/                # signed, hash-chained, append-only NDJSON log
+│   └── 2026/08/09/events.ndjson
+├── meta/events/           # the same, for tags (the "meta-network")
+│   └── 2026/08/09/events.ndjson
+└── blobs/sha256/          # content-addressed data for nodes and edges
+    └── 26/09/2609c7c2...85e2
+</code></pre></div></div>
+
+<p>The durable things are <strong>the signed append-only event log</strong> and <strong>the blob
+store</strong>. Together they <em>are</em> the archive. Everything else — indexes, graph
+projections, visualisations, UIs — is a rebuildable projection.</p>
+
+<p>Three properties follow, and they are the whole point:</p>
 
 <ul>
-  <li><a href="/docs/intro/index.html">Introduction</a></li>
-  <li><a href="/docs/format/index.html">Format specification</a></li>
-  <li><a href="/docs/format/index.html#examples">Examples</a></li>
-  <li><a href="/docs/contributing/index.html">Contributing</a></li>
+  <li><strong>Verifiable.</strong> Every event is Ed25519-signed by its author and carries the
+hash of the event before it. The hash of the last event is the archive’s
+canonical identity: two archives are identical if and only if their last event
+hashes match.</li>
+  <li><strong>Durable.</strong> UTF-8 NDJSON, SHA-256 filenames, archival-safe media types, and a
+<code class="language-plaintext highlighter-rouge">MANIFEST.json</code> that documents the whole layout so a future reader needs no
+IndieK code at all.</li>
+  <li><strong>Yours.</strong> It is a directory of files on your disk. Collaboration is
+<code class="language-plaintext highlighter-rouge">git push</code>. There is no service to lose access to.</li>
 </ul>
 
-<p>This site is the authoritative reference for implementers and archivists.</p>
+<h2 id="loose-by-design">Loose by design</h2>
+
+<p>IndieK ships <strong>no fixed ontology</strong>. Versatile data may be attached to <strong>nodes
+<em>and</em> edges</strong>, and tags may be <strong>designed freely</strong> for both. A rigid schema
+would encode someone else’s understanding of your domain; IndieK constrains
+durability and leaves meaning to you.</p>
+
+<h2 id="try-it">Try it</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uv tool <span class="nb">install </span>ik          <span class="c"># from source until the PyPI release (30 Sep 2026)</span>
+ik manifest                 <span class="c"># write MANIFEST.json into the archive</span>
+ik create_node <span class="nt">--content</span> <span class="s2">"Understanding is not retrieval"</span>
+ik create_node <span class="nt">--content</span> <span class="s2">"Wikipedia is retrieval"</span>
+ik create_edge <span class="nt">--source-node</span> e2 <span class="nt">--target-node</span> e1 <span class="nt">--content</span> <span class="s2">"illustrates"</span>
+ik <span class="nb">read</span> <span class="nt">--mini</span>              <span class="c"># inspect the log</span>
+ik <span class="nb">export</span> <span class="nt">--output-path</span> graph.graphml
+</code></pre></div></div>
+
+<p>Full setup — including the two environment variables <code class="language-plaintext highlighter-rouge">ik</code> needs and how to
+generate an author key — is in the <a href="/docs/cli/">CLI reference</a>.</p>
+
+<h2 id="status">Status</h2>
+
+<p>Pre-1.0. The archival format is at version <strong>2.0</strong>. The specification and the
+CLI are subject to change until <strong>1 October 2026</strong>, when the FOSS layer opens
+for external adoption and contribution.</p>
+
+<p>The format specification and the <code class="language-plaintext highlighter-rouge">ik</code> CLI are licensed under
+<strong>Apache License 2.0</strong>. See <a href="/docs/license/">Licenses</a>.</p>
 
         </article>
         <aside class="sidebar">

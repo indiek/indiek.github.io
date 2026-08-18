@@ -27,9 +27,300 @@
 
     <main class="wrap">
         <article class="content">
-            <p>The IndieK Archival Format (IAF) is designed to package knowledge graphs to ensure long-term preservation and easy collaboration.</p>
+            <h1 id="introduction">Introduction</h1>
 
-<p>This documentation covers the specification, recommended tooling, and examples for creating and consuming IAF archives.</p>
+<p>This page explains <strong>what IndieK is</strong>, <strong>what the products are</strong>, and <strong>how the
+whole thing works</strong>. If you want the <em>why</em> first, read
+<a href="/docs/mission/">Mission &amp; Vision</a>. If you want to parse an archive, jump to the
+<a href="/docs/format/">format specification</a>.</p>
+
+<h2 id="1-what-indiek-is">1. What IndieK is</h2>
+
+<p>IndieK is a <strong>knowledge graph (KG) archival format</strong> and an ecosystem of tools
+around it.</p>
+
+<p>The format is the centre of gravity. Everything else — a CLI, a desktop app,
+cloud services, a debating platform — is a <em>consumer</em> of the format. That
+ordering is deliberate: applications are replaceable, archives are not.</p>
+
+<p>An IndieK knowledge graph has three unusual properties:</p>
+
+<ol>
+  <li><strong>Edges carry content.</strong> An edge is not a bare pointer from A to B. It has
+its own data, its own author, its own tags, and its own revision history.
+“Why are these two ideas connected?” is a first-class question with a
+first-class answer.</li>
+  <li><strong>Nothing is ever mutated.</strong> The archive is an append-only, signed,
+hash-chained event log. Editing a node appends a <code class="language-plaintext highlighter-rouge">supersede_node</code> event; the
+previous version remains in the log forever. Your revisions <em>are</em> knowledge.</li>
+  <li><strong>Vocabulary is user-defined.</strong> Tags are created freely by users and modelled
+as a graph of their own (the <em>meta-network</em>). There is no built-in taxonomy.</li>
+</ol>
+
+<h2 id="2-the-two-layers">2. The two layers</h2>
+
+<p>IndieK is split along one clear line.</p>
+
+<h3 id="the-foss-layer--the-format-and-everything-local">The FOSS layer — the format and everything local</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>What it is</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>IndieK archival format</strong></td>
+      <td>The specification documented on this site. Version <code class="language-plaintext highlighter-rouge">2.0</code>.</td>
+      <td>Published, pre-1.0</td>
+    </tr>
+    <tr>
+      <td><strong><code class="language-plaintext highlighter-rouge">ik</code> — the Python CLI</strong></td>
+      <td>Reference implementation: create, read, verify, ingest and export archives. See the <a href="/docs/cli/">CLI reference</a>.</td>
+      <td>Ships to PyPI by 30 Sep 2026</td>
+    </tr>
+    <tr>
+      <td><strong>IndieK Desktop App</strong></td>
+      <td>A packaged backend + frontend that runs <strong>100% locally and fully offline</strong>. Takes local repositories as input. Handles basic write operations; the CLI remains the tool for fine-grained control.</td>
+      <td>Releases by 30 Sep 2026</td>
+    </tr>
+    <tr>
+      <td><strong>indiek.org</strong></td>
+      <td>This documentation site.</td>
+      <td>Live</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>All of it is <strong>Apache-2.0</strong> licensed. See <a href="/docs/license/">Licenses</a>.</p>
+
+<h3 id="the-proprietary-layer--everything-hosted">The proprietary layer — everything hosted</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>What it is</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Cloud KG management web apps</strong></td>
+      <td>Hosted graph browsing, editing and management</td>
+    </tr>
+    <tr>
+      <td><strong>Debating platform</strong></td>
+      <td>Collaborative knowledge generation through structured debate, backed by a knowledge graph</td>
+    </tr>
+    <tr>
+      <td><strong>Premium tiers</strong></td>
+      <td>Paid cloud functionality</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>The boundary is architectural, not just legal.</strong> The proprietary layer is a
+consumer of the same open format. It does not extend the format with private
+fields, it does not gate any part of the specification, and it does not require
+a hosted account to read your own data. An archive written by a paid IndieK
+service is readable by the FOSS CLI, and an archive written by the CLI is
+readable by the hosted apps.</p>
+
+<h3 id="collaboration-without-a-server">Collaboration without a server</h3>
+
+<p>Because an archive is a plain directory and the event log is append-only, <strong>git
+provides collaboration for free</strong>. Several authors can build one knowledge graph
+by pushing to a shared repository:</p>
+
+<ul>
+  <li>Each author signs their own events with their own Ed25519 key, so authorship
+survives merging.</li>
+  <li>Events are stored in date-sharded files (<code class="language-plaintext highlighter-rouge">events/YYYY/MM/DD/events.ndjson</code>),
+which keeps concurrent appends from colliding on the same file most of the
+time.</li>
+  <li>Any reader can verify the whole chain locally.</li>
+</ul>
+
+<p>This is the input model for the Desktop App: point it at local repositories that
+contain collaboratively built graphs.</p>
+
+<h2 id="3-how-it-works">3. How it works</h2>
+
+<h3 id="31-the-durable-core">3.1 The durable core</h3>
+
+<blockquote>
+  <p>The durable thing is the signed append-only event history and the blob store.
+Everything else should be rebuildable projections.</p>
+</blockquote>
+
+<p>Two stores, one archive:</p>
+
+<ul>
+  <li><strong>The blob store</strong> holds the actual data. Every piece of content attached to a
+node or an edge is a <em>blob</em>, and a blob’s identity <strong>is</strong> its SHA-256 hash. A
+blob is immutable once written, and identical content is stored exactly once.</li>
+  <li><strong>The event log</strong> holds the metadata needed to reconstruct the entire graph.
+It is append-only, each event is signed, and each event references the hash of
+its predecessor.</li>
+</ul>
+
+<p>Graph identifiers are <strong>UUIDv7</strong> — distinct from blob hashes. A node keeps its
+UUID across every revision; the blob it points to changes.</p>
+
+<h3 id="32-the-two-networks">3.2 The two networks</h3>
+
+<p>IndieK stores two logs, and they mean different things.</p>
+
+<p><strong>The base network</strong> (<code class="language-plaintext highlighter-rouge">events/</code>) is your knowledge graph: nodes, edges, and
+their revisions.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">create_node</code> — a new node</li>
+  <li><code class="language-plaintext highlighter-rouge">create_edge</code> — a new directed edge, with content, between two existing nodes</li>
+  <li><code class="language-plaintext highlighter-rouge">supersede_node</code> / <code class="language-plaintext highlighter-rouge">supersede_edge</code> — new content for an existing item, without
+allocating a new identifier. Edge endpoints can never change.</li>
+</ul>
+
+<p><strong>The meta-network</strong> (<code class="language-plaintext highlighter-rouge">meta/events/</code>) is the tagging graph. Rather than stuffing
+tags into node records, IndieK models tagging as a graph in its own right:</p>
+
+<ul>
+  <li>A <strong>tag</strong> is a meta-node with a name and a description (<code class="language-plaintext highlighter-rouge">create_node_tag</code> for
+tagging nodes, <code class="language-plaintext highlighter-rouge">create_edge_tag</code> for tagging edges).</li>
+  <li>A <strong>representation</strong> is a shadow meta-node that stands for a base-network node
+or edge (<code class="language-plaintext highlighter-rouge">create_node_representation</code> / <code class="language-plaintext highlighter-rouge">create_edge_representation</code>).</li>
+  <li>A <strong>meta-edge</strong> from a tag to a representation means <em>“this tag applies to
+that item”</em> (<code class="language-plaintext highlighter-rouge">set_node_tag</code> / <code class="language-plaintext highlighter-rouge">set_edge_tag</code>).</li>
+</ul>
+
+<p>This costs one indirection and buys a lot: tags are addressable objects with
+authors and descriptions, tagging is itself a signed historical event, and the
+tag vocabulary can later grow its own structure (tags relating to tags) without
+any format change.</p>
+
+<h3 id="33-resources-three-ways-to-attach-data">3.3 Resources: three ways to attach data</h3>
+
+<p>Not everything should be copied into an archive. A node or edge declares a
+<code class="language-plaintext highlighter-rouge">resource_type</code>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th><code class="language-plaintext highlighter-rouge">resource_type</code></th>
+      <th>Meaning</th>
+      <th>Durability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">managed</code></td>
+      <td>Content is copied into the archive’s blob store and content-addressed</td>
+      <td>Fully self-contained</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">uri</code></td>
+      <td>The archive records an external URL and does not fetch it</td>
+      <td>Depends on the external host</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">local_file</code></td>
+      <td>The archive records a path plus size, SHA-256 fingerprint and verification timestamp — without importing the file</td>
+      <td>The file stays where it is; drift is detectable</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code class="language-plaintext highlighter-rouge">managed</code> is the default and the only fully archival option. <code class="language-plaintext highlighter-rouge">local_file</code> is the
+pragmatic middle ground for large media you do not want duplicated: IndieK
+remembers enough to <em>prove</em> whether the file has changed.</p>
+
+<p>To stay archival, managed content is restricted to a short list of media types:
+<code class="language-plaintext highlighter-rouge">text/plain</code>, <code class="language-plaintext highlighter-rouge">text/markdown</code>, <code class="language-plaintext highlighter-rouge">image/png</code>, <code class="language-plaintext highlighter-rouge">image/jpeg</code>, <code class="language-plaintext highlighter-rouge">image/tiff</code>, and
+PDF/A.</p>
+
+<h3 id="34-integrity">3.4 Integrity</h3>
+
+<p>Three independent checks, all runnable offline:</p>
+
+<ol>
+  <li><strong>Chain integrity</strong> — each event’s <code class="language-plaintext highlighter-rouge">prev_hash</code> must equal the SHA-256 of the
+entire preceding event, canonically serialised. A broken link means insertion,
+deletion or reordering.</li>
+  <li><strong>Signatures</strong> — each event’s signature must verify against its author’s
+Ed25519 public key over the canonical hash of the event body. This proves both
+authorship and that the body has not been altered.</li>
+  <li><strong>Blob integrity</strong> — every referenced blob must exist on disk and hash to the
+value recorded in the event.</li>
+</ol>
+
+<p>The reference CLI runs all three on <strong>every invocation</strong>, before doing anything
+else. There is no “unverified” mode.</p>
+
+<p>The hash of the final event is the archive’s canonical identity at that point in
+time. Two archives are identical if and only if their last event hashes match —
+which makes archive comparison a 64-character string comparison.</p>
+
+<h3 id="35-rebuildable-projections">3.5 Rebuildable projections</h3>
+
+<p>Because the log is the truth, everything convenient is derived:</p>
+
+<ul>
+  <li>The <strong>current graph state</strong> — walk the log, apply creations, let supersedes
+overwrite the active projection.</li>
+  <li><strong>Human-friendly IDs</strong> — <code class="language-plaintext highlighter-rouge">e1</code>, <code class="language-plaintext highlighter-rouge">e2</code>, … for base-network items and <code class="language-plaintext highlighter-rouge">m1</code>, <code class="language-plaintext highlighter-rouge">m2</code>, …
+for meta-network items, assigned in log order so you can type <code class="language-plaintext highlighter-rouge">e4</code> instead of a
+UUID.</li>
+  <li><strong>Tag assignments</strong> — resolved by following meta-edges through representations
+back to base items.</li>
+  <li><strong>Exports</strong> — GraphML for external visualisation tools.</li>
+</ul>
+
+<p>Delete every projection and you have lost nothing. Delete the log and you have
+lost everything.</p>
+
+<h2 id="4-a-worked-example">4. A worked example</h2>
+
+<p>Two authors, one small debate. <code class="language-plaintext highlighter-rouge">GENESIS</code> and <code class="language-plaintext highlighter-rouge">ANON</code> each have their own key and
+their own <code class="language-plaintext highlighter-rouge">.env</code> file:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># GENESIS states two claims</span>
+ik <span class="nt">--dot-env</span> .env.genesis create_node <span class="nt">--content</span> <span class="s2">"Dieu existe"</span>                  <span class="c"># e1</span>
+ik <span class="nt">--dot-env</span> .env.genesis create_node <span class="nt">--content</span> <span class="s2">"Donc je suis divin"</span>           <span class="c"># e2</span>
+
+<span class="c"># ANON objects, and links the objection to the first claim</span>
+ik <span class="nt">--dot-env</span> .env.anonymous1 create_node <span class="nt">--content</span> <span class="s2">"Je ne vois aucune preuve"</span>  <span class="c"># e3</span>
+ik <span class="nt">--dot-env</span> .env.anonymous1 create_edge <span class="nt">--source-node</span> e3 <span class="nt">--target-node</span> e1 <span class="se">\</span>
+    <span class="nt">--content</span> <span class="s2">"Pas d'accord"</span>                                                   <span class="c"># e4</span>
+
+<span class="c"># ANON invents a vocabulary for edges and applies it to their own objection</span>
+ik <span class="nt">--dot-env</span> .env.anonymous1 create_edge_tag <span class="nt">--name</span> <span class="s2">"reaction"</span> <span class="se">\</span>
+    <span class="nt">--description</span> <span class="s2">"reaction to others' words"</span>                                  <span class="c"># m1</span>
+ik <span class="nt">--dot-env</span> .env.anonymous1 set_tag <span class="nt">--tag</span> m1 <span class="nt">--id</span> e4
+
+<span class="c"># GENESIS invents a vocabulary for nodes and groups the two positions</span>
+ik <span class="nt">--dot-env</span> .env.genesis create_node_tag <span class="nt">--name</span> <span class="s2">"discussion"</span> <span class="se">\</span>
+    <span class="nt">--description</span> <span class="s2">"discussion about God"</span>                                       <span class="c"># m4</span>
+ik <span class="nt">--dot-env</span> .env.genesis set_tag <span class="nt">--tag</span> m4 <span class="nt">--id</span> e1
+ik <span class="nt">--dot-env</span> .env.genesis set_tag <span class="nt">--tag</span> m4 <span class="nt">--id</span> e3
+</code></pre></div></div>
+
+<p>The result is a signed, attributable, tamper-evident debate in a directory you
+can commit to git. Note that <code class="language-plaintext highlighter-rouge">set_tag</code> requires you to be the tag’s own author —
+you may apply <em>your</em> vocabulary to <em>anyone’s</em> items, but you cannot apply
+someone else’s vocabulary on their behalf.</p>
+
+<h2 id="5-where-to-go-next">5. Where to go next</h2>
+
+<ul>
+  <li><a href="/docs/format/">Format specification</a> — the normative reference for
+implementers</li>
+  <li><a href="/docs/cli/">CLI reference</a> — installation, configuration, every command</li>
+  <li><a href="/docs/contributing/">Contributing</a> — how to help</li>
+  <li><a href="/docs/license/">Licenses</a> — Apache-2.0</li>
+</ul>
 
         </article>
         <aside class="sidebar">
