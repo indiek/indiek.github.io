@@ -1,16 +1,30 @@
-title: "IndieK Archival Format — Documentation"
-description: "Reference documentation for the FOSS Archival Format (open archival format for FOSS projects)."
+title: "IndieK"
+tagline: "Knowledge graphs, archived to last"
+description: >-
+  IndieK is an open archival format for knowledge graphs — signed, append-only,
+  verifiable without any software — with a Python SDK and the ik command-line tool.
 baseurl: ""
 url: "https://indiek.org"
-markdown: kramdown
-plugins: []
 permalink: pretty
-collections:
-  docs:
-    output: true
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+highlighter: rouge
+plugins: []
+
 defaults:
   - scope:
       path: ""
-      type: "docs"
+      type: "pages"
     values:
       layout: "default"
+
+exclude:
+  - README.md
+  - CHANGELOG.md
+  - Gemfile
+  - Gemfile.lock
+  - scripts/

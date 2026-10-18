@@ -1,0 +1,38 @@
+# Site navigation: the top bar uses `main`; the documentation sidebar uses `docs`.
+main:
+  - title: Vision
+    url: /docs/mission/
+  - title: Get started
+    url: /docs/intro/
+  - title: SDK
+    url: /docs/sdk/
+  - title: CLI
+    url: /docs/cli/
+  - title: Format
+    url: /docs/format/
+  - title: Examples
+    url: /docs/examples/
+
+docs:
+  - section: Overview
+    pages:
+      - title: Vision
+        url: /docs/mission/
+      - title: Get started
+        url: /docs/intro/
+      - title: Examples
+        url: /docs/examples/
+  - section: Reference
+    pages:
+      - title: Python SDK
+        url: /docs/sdk/
+      - title: ik CLI
+        url: /docs/cli/
+      - title: Format specification
+        url: /docs/format/
+  - section: Project
+    pages:
+      - title: Contributing
+        url: /docs/contributing/
+      - title: License
+        url: /docs/license/

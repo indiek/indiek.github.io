@@ -1,89 +1,143 @@
 ---
-layout: default
 title: "IndieK"
+home: true
 ---
 
-# IndieK
+<section class="hero">
+<div class="hero-inner">
+<div>
+<h1>Knowledge graphs, archived to last.</h1>
+<p>IndieK is an open archival format for knowledge graphs: plain files, signed
+by their authors, append-only, and verifiable by anyone — with nothing but a
+published specification and standard cryptography.</p>
+<div class="buttons">
+<a class="button primary" href="/docs/intro/">Get started</a>
+<a class="button secondary" href="/docs/mission/">Read the vision</a>
+<a class="button secondary" href="/docs/format/">The specification</a>
+</div>
+</div>
+<div markdown="1">
 
-**IndieK is a knowledge graph archival format and the ecosystem of tools built
-around it.**
+```python
+from indiek import Archive, Author
 
-Its mission is to **foster knowledge creation and knowledge management** — both
-inside a single mind and between minds that disagree. There is a big difference
-between having a ton of information online and *understanding* a complex topic
-at a technical, individual level. IndieK is built for the second thing.
-Read the [full mission and vision](/docs/mission/).
+ik = Archive.open("my-archive", author=Author.generate())
 
-## Start here
+theorem = ik.create_node("Gödel's first incompleteness theorem")
+proof = ik.create_node("Diagonalisation over provability.")
+ik.create_edge(proof, theorem, "proves")
 
-| If you want to… | Go to |
-| --- | --- |
-| Understand what IndieK is and why | [Mission & Vision](/docs/mission/) |
-| See all the products and how they fit | [Introduction](/docs/intro/) |
-| Implement or parse an archive | [Format specification](/docs/format/) |
-| Use the reference tool | [CLI reference](/docs/cli/) |
-| Contribute | [Contributing](/docs/contributing/) |
-| Check the legal terms | [Licenses](/docs/license/) |
+tag = ik.create_tag("theorem", "A proven statement", kind="node")
+ik.set_tag(tag, theorem)
+
+print(ik.seal().hash)  # one hash commits to everything
+```
+
+</div>
+</div>
+</section>
+
+<section class="section">
+<h2>Why IndieK</h2>
+<div class="cards">
+<div class="card"><h3>Plain files</h3><p>An archive is a folder of UTF-8 text logs and content-addressed files. No database, no server, no proprietary container.</p></div>
+<div class="card"><h3>Signed and chained</h3><p>Every event is signed with its author's Ed25519 key and linked to the previous one by a hash. Any change to the history is detected.</p></div>
+<div class="card"><h3>Nothing is overwritten</h3><p>Revisions are new events; earlier versions stay in the log. How your understanding evolved is part of the knowledge.</p></div>
+<div class="card"><h3>Edges carry content</h3><p>A connection between two ideas has its own text, author, tags and history. "Why are these linked?" gets a first-class answer.</p></div>
+<div class="card"><h3>Your vocabulary</h3><p>No fixed ontology. Tags are designed freely, for nodes and for edges, and anyone can annotate a graph with their own key.</p></div>
+<div class="card"><h3>Built to be checked</h3><p>Seals commit to a whole archive in one short hash. Publish it, and anyone can verify their copy — offline, without trusting anyone.</p></div>
+</div>
+</section>
+
+<section class="section soft">
+<div class="two-col">
+<div markdown="1">
 
 ## An archive in thirty seconds
 
-An IndieK archive is a **plain directory**. No database, no server, no
-proprietary container:
-
-```
+```text
 my-archive/
-├── MANIFEST.json          # self-describing: layout + schemas
-├── events/                # signed, hash-chained, append-only NDJSON log
-│   └── 2026/08/09/events.ndjson
-├── meta/events/           # the same, for tags (the "meta-network")
-│   └── 2026/08/09/events.ndjson
-└── blobs/sha256/          # content-addressed data for nodes and edges
-    └── 26/09/2609c7c2...85e2
+├── events/…/events.ndjson       the knowledge graph
+├── meta/events/…/events.ndjson  tags on it
+├── blobs/sha256/71/a0/71a0b5…   content, named by its hash
+├── seals/seals.ndjson           signed checkpoints
+├── SPEC.md                      the specification itself
+└── MANIFEST.json                layout and JSON Schemas
 ```
 
-The durable things are **the signed append-only event log** and **the blob
-store**. Together they *are* the archive. Everything else — indexes, graph
-projections, visualisations, UIs — is a rebuildable projection.
+</div>
+<div markdown="1">
 
-Three properties follow, and they are the whole point:
+## Durable by design
 
-- **Verifiable.** Every event is Ed25519-signed by its author and carries the
-  hash of the event before it. The hash of the last event is the archive's
-  canonical identity: two archives are identical if and only if their last event
-  hashes match.
-- **Durable.** UTF-8 NDJSON, SHA-256 filenames, archival-safe media types, and a
-  `MANIFEST.json` that documents the whole layout so a future reader needs no
-  IndieK code at all.
-- **Yours.** It is a directory of files on your disk. Collaboration is
-  `git push`. There is no service to lose access to.
+The signed event logs and the blobs *are* the archive; every index or view is
+rebuilt from them. Archives carry their own specification and test vectors,
+so a reader in fifty years needs neither this website nor our code. Hashes
+and signatures name their algorithms, and *transcription* events let future
+generations re-attest old history with newer cryptography.
 
-## Loose by design
+[How the format works →](/docs/format/)
 
-IndieK ships **no fixed ontology**. Versatile data may be attached to **nodes
-*and* edges**, and tags may be **designed freely** for both. A rigid schema
-would encode someone else's understanding of your domain; IndieK constrains
-durability and leaves meaning to you.
+</div>
+</div>
+</section>
 
-## Try it
+<section class="section">
+<div class="two-col">
+<div markdown="1">
+
+## From the shell
 
 ```bash
-uv tool install ik          # from source until the PyPI release (30 Sep 2026)
-ik manifest                 # write MANIFEST.json into the archive
+uv tool install 'indiek[cli]'
+ik keygen --write
+ik config --set-archive-path ~/archives/notes
 ik create_node --content "Understanding is not retrieval"
-ik create_node --content "Wikipedia is retrieval"
+ik create_node --content ./notes/limits.md
 ik create_edge --source-node e2 --target-node e1 --content "illustrates"
-ik read --mini              # inspect the log
-ik export --output-path graph.graphml
+ik seal
+ik verify
 ```
 
-Full setup — including the two environment variables `ik` needs and how to
-generate an author key — is in the [CLI reference](/docs/cli/).
+[CLI reference →](/docs/cli/)
+
+</div>
+<div markdown="1">
+
+## From Python
+
+```python
+from indiek import Archive
+
+reader = Archive.open("my-archive")  # read-only
+for item in reader.index.items.values():
+    print(item.alias, item.kind, item.author[:8])
+
+print(reader.verify())       # full check, latest seal
+print(reader.fsck().blob_files)
+```
+
+[SDK reference →](/docs/sdk/) · [Examples →](/docs/examples/)
+
+</div>
+</div>
+</section>
+
+<section class="section soft">
+<div markdown="1">
 
 ## Status
 
-Pre-1.0. The archival format is at version **2.0**. The specification and the
-CLI are subject to change until **1 October 2026**, when the FOSS layer opens
-for external adoption and contribution.
+<div class="status">
+<span><strong>indiek 1.0.0</strong> — Python SDK and <code>ik</code> CLI</span>
+<span><strong>Format 3.0</strong> — first public version</span>
+<span><strong>1 November 2026</strong> — contributions open</span>
+<span><strong>Desktop app</strong> — development is underway</span>
+</div>
 
-The format specification and the `ik` CLI are licensed under
-**Apache License 2.0**. See [Licenses](/docs/license/).
+The format specification and the `indiek` package are free and open source
+under the Apache License 2.0. Read [the vision](/docs/mission/), then
+[get started](/docs/intro/).
+
+</div>
+</section>

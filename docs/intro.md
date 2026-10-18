@@ -1,219 +1,173 @@
 ---
-title: Introduction
-layout: default
+title: "Get started"
+description: "Install the indiek package, create and verify your first IndieK archive, and learn the core concepts."
 ---
 
-# Introduction
+# Get started
 
-This page explains **what IndieK is**, **what the products are**, and **how the
-whole thing works**. If you want the *why* first, read
-[Mission & Vision](/docs/mission/). If you want to parse an archive, jump to the
-[format specification](/docs/format/).
+This page takes you from nothing to a signed, sealed knowledge graph, then
+explains the handful of concepts behind it. For the *why*, read the
+[vision](/docs/mission/); for every detail, the [SDK](/docs/sdk/) and
+[CLI](/docs/cli/) references.
 
-## 1. What IndieK is
+## Install
 
-IndieK is a **knowledge graph (KG) archival format** and an ecosystem of tools
-around it.
-
-The format is the centre of gravity. Everything else — a CLI, a desktop app,
-cloud services, a debating platform — is a *consumer* of the format. That
-ordering is deliberate: applications are replaceable, archives are not.
-
-An IndieK knowledge graph has three unusual properties:
-
-1. **Edges carry content.** An edge is not a bare pointer from A to B. It has
-   its own data, its own author, its own tags, and its own revision history.
-   "Why are these two ideas connected?" is a first-class question with a
-   first-class answer.
-2. **Nothing is ever mutated.** The archive is an append-only, signed,
-   hash-chained event log. Editing a node appends a `supersede_node` event; the
-   previous version remains in the log forever. Your revisions *are* knowledge.
-3. **Vocabulary is user-defined.** Tags are created freely by users and modelled
-   as a graph of their own (the *meta-network*). There is no built-in taxonomy.
-
-## 2. The two layers
-
-IndieK is split along one clear line.
-
-### The FOSS layer — the format and everything local
-
-| Product | What it is | Status |
-| --- | --- | --- |
-| **IndieK archival format** | The specification documented on this site. Version `2.0`. | Published, pre-1.0 |
-| **`ik` — the Python CLI** | Reference implementation: create, read, verify, ingest and export archives. See the [CLI reference](/docs/cli/). | Ships to PyPI by 30 Sep 2026 |
-| **IndieK Desktop App** | A packaged backend + frontend that runs **100% locally and fully offline**. Takes local repositories as input. Handles basic write operations; the CLI remains the tool for fine-grained control. | Releases by 30 Sep 2026 |
-| **indiek.org** | This documentation site. | Live |
-
-All of it is **Apache-2.0** licensed. See [Licenses](/docs/license/).
-
-### The proprietary layer — everything hosted
-
-| Product | What it is |
-| --- | --- |
-| **Cloud KG management web apps** | Hosted graph browsing, editing and management |
-| **Debating platform** | Collaborative knowledge generation through structured debate, backed by a knowledge graph |
-| **Premium tiers** | Paid cloud functionality |
-
-**The boundary is architectural, not just legal.** The proprietary layer is a
-consumer of the same open format. It does not extend the format with private
-fields, it does not gate any part of the specification, and it does not require
-a hosted account to read your own data. An archive written by a paid IndieK
-service is readable by the FOSS CLI, and an archive written by the CLI is
-readable by the hosted apps.
-
-### Collaboration without a server
-
-Because an archive is a plain directory and the event log is append-only, **git
-provides collaboration for free**. Several authors can build one knowledge graph
-by pushing to a shared repository:
-
-- Each author signs their own events with their own Ed25519 key, so authorship
-  survives merging.
-- Events are stored in date-sharded files (`events/YYYY/MM/DD/events.ndjson`),
-  which keeps concurrent appends from colliding on the same file most of the
-  time.
-- Any reader can verify the whole chain locally.
-
-This is the input model for the Desktop App: point it at local repositories that
-contain collaboratively built graphs.
-
-## 3. How it works
-
-### 3.1 The durable core
-
-> The durable thing is the signed append-only event history and the blob store.
-> Everything else should be rebuildable projections.
-
-Two stores, one archive:
-
-- **The blob store** holds the actual data. Every piece of content attached to a
-  node or an edge is a *blob*, and a blob's identity **is** its SHA-256 hash. A
-  blob is immutable once written, and identical content is stored exactly once.
-- **The event log** holds the metadata needed to reconstruct the entire graph.
-  It is append-only, each event is signed, and each event references the hash of
-  its predecessor.
-
-Graph identifiers are **UUIDv7** — distinct from blob hashes. A node keeps its
-UUID across every revision; the blob it points to changes.
-
-### 3.2 The two networks
-
-IndieK stores two logs, and they mean different things.
-
-**The base network** (`events/`) is your knowledge graph: nodes, edges, and
-their revisions.
-
-- `create_node` — a new node
-- `create_edge` — a new directed edge, with content, between two existing nodes
-- `supersede_node` / `supersede_edge` — new content for an existing item, without
-  allocating a new identifier. Edge endpoints can never change.
-
-**The meta-network** (`meta/events/`) is the tagging graph. Rather than stuffing
-tags into node records, IndieK models tagging as a graph in its own right:
-
-- A **tag** is a meta-node with a name and a description (`create_node_tag` for
-  tagging nodes, `create_edge_tag` for tagging edges).
-- A **representation** is a shadow meta-node that stands for a base-network node
-  or edge (`create_node_representation` / `create_edge_representation`).
-- A **meta-edge** from a tag to a representation means *"this tag applies to
-  that item"* (`set_node_tag` / `set_edge_tag`).
-
-This costs one indirection and buys a lot: tags are addressable objects with
-authors and descriptions, tagging is itself a signed historical event, and the
-tag vocabulary can later grow its own structure (tags relating to tags) without
-any format change.
-
-### 3.3 Resources: three ways to attach data
-
-Not everything should be copied into an archive. A node or edge declares a
-`resource_type`:
-
-| `resource_type` | Meaning | Durability |
-| --- | --- | --- |
-| `managed` | Content is copied into the archive's blob store and content-addressed | Fully self-contained |
-| `uri` | The archive records an external URL and does not fetch it | Depends on the external host |
-| `local_file` | The archive records a path plus size, SHA-256 fingerprint and verification timestamp — without importing the file | The file stays where it is; drift is detectable |
-
-`managed` is the default and the only fully archival option. `local_file` is the
-pragmatic middle ground for large media you do not want duplicated: IndieK
-remembers enough to *prove* whether the file has changed.
-
-To stay archival, managed content is restricted to a short list of media types:
-`text/plain`, `text/markdown`, `image/png`, `image/jpeg`, `image/tiff`, and
-PDF/A.
-
-### 3.4 Integrity
-
-Three independent checks, all runnable offline:
-
-1. **Chain integrity** — each event's `prev_hash` must equal the SHA-256 of the
-   entire preceding event, canonically serialised. A broken link means insertion,
-   deletion or reordering.
-2. **Signatures** — each event's signature must verify against its author's
-   Ed25519 public key over the canonical hash of the event body. This proves both
-   authorship and that the body has not been altered.
-3. **Blob integrity** — every referenced blob must exist on disk and hash to the
-   value recorded in the event.
-
-The reference CLI runs all three on **every invocation**, before doing anything
-else. There is no "unverified" mode.
-
-The hash of the final event is the archive's canonical identity at that point in
-time. Two archives are identical if and only if their last event hashes match —
-which makes archive comparison a 64-character string comparison.
-
-### 3.5 Rebuildable projections
-
-Because the log is the truth, everything convenient is derived:
-
-- The **current graph state** — walk the log, apply creations, let supersedes
-  overwrite the active projection.
-- **Human-friendly IDs** — `e1`, `e2`, … for base-network items and `m1`, `m2`, …
-  for meta-network items, assigned in log order so you can type `e4` instead of a
-  UUID.
-- **Tag assignments** — resolved by following meta-edges through representations
-  back to base items.
-- **Exports** — GraphML for external visualisation tools.
-
-Delete every projection and you have lost nothing. Delete the log and you have
-lost everything.
-
-## 4. A worked example
-
-Two authors, one small debate. `GENESIS` and `ANON` each have their own key and
-their own `.env` file:
+IndieK needs Python 3.14 or newer. The `indiek` package contains both the
+Python SDK and the `ik` command-line tool.
 
 ```bash
-# GENESIS states two claims
-ik --dot-env .env.genesis create_node --content "Dieu existe"                  # e1
-ik --dot-env .env.genesis create_node --content "Donc je suis divin"           # e2
-
-# ANON objects, and links the objection to the first claim
-ik --dot-env .env.anonymous1 create_node --content "Je ne vois aucune preuve"  # e3
-ik --dot-env .env.anonymous1 create_edge --source-node e3 --target-node e1 \
-    --content "Pas d'accord"                                                   # e4
-
-# ANON invents a vocabulary for edges and applies it to their own objection
-ik --dot-env .env.anonymous1 create_edge_tag --name "reaction" \
-    --description "reaction to others' words"                                  # m1
-ik --dot-env .env.anonymous1 set_tag --tag m1 --id e4
-
-# GENESIS invents a vocabulary for nodes and groups the two positions
-ik --dot-env .env.genesis create_node_tag --name "discussion" \
-    --description "discussion about God"                                       # m4
-ik --dot-env .env.genesis set_tag --tag m4 --id e1
-ik --dot-env .env.genesis set_tag --tag m4 --id e3
+uv tool install 'indiek[cli]'   # the ik command
+uv add indiek                   # the SDK, as a dependency of your project
+pip install 'indiek[cli]'       # or with pip
 ```
 
-The result is a signed, attributable, tamper-evident debate in a directory you
-can commit to git. Note that `set_tag` requires you to be the tag's own author —
-you may apply *your* vocabulary to *anyone's* items, but you cannot apply
-someone else's vocabulary on their behalf.
+The SDK depends only on `pydantic` and `pynacl`; the `cli` extra adds `rich`
+(tables) and `python-dotenv` (configuration files).
 
-## 5. Where to go next
+## Your first archive, from the shell
 
-- [Format specification](/docs/format/) — the normative reference for
-  implementers
-- [CLI reference](/docs/cli/) — installation, configuration, every command
-- [Contributing](/docs/contributing/) — how to help
-- [Licenses](/docs/license/) — Apache-2.0
+`ik` reads two settings, from the environment or from a `.env` file in the
+current folder: where the archive is, and the key you sign with.
+
+```bash
+ik keygen --write                                   # creates your key, stored in .env
+ik config --set-archive-path ~/archives/first       # stored in .env too
+```
+
+Your key is your signing identity: back up `.env` privately and never share
+it. Now add two ideas and the link between them:
+
+```bash
+ik create_node --content "Understanding is not retrieval" --title "Thesis"   # e1
+ik create_node --content "An encyclopedia answers questions; it does not understand them"  # e2
+ik create_edge --source-node e2 --target-node e1 --content "illustrates"     # e3
+ik create_node_tag --name claim --description "A statement to defend"         # m1
+ik set_tag --tag m1 --id e1
+ik read --mini
+```
+
+`e1`, `e2`, `e3` are *aliases*: short names the tool assigns to nodes and
+edges in creation order (`m1`, `m2`, … for tags). Revise a node without
+losing its history, then seal and verify:
+
+```bash
+ik supersede_node --node-id e1 --content "Understanding is **not** retrieval"
+ik seal       # Seal 1 created: sha256:…  — the hash to publish
+ik verify     # Archive verified: 4 base events, 3 meta events, 1 seals
+```
+
+## The same, from Python
+
+```python
+from indiek import Archive, Author
+
+author = Author.generate()  # author.seed_hex is the secret to keep
+ik = Archive.open("first", author=author)
+
+thesis = ik.create_node("Understanding is not retrieval", title="Thesis")
+example = ik.create_node(
+    "An encyclopedia answers questions; it does not understand them"
+)
+ik.create_edge(example, thesis, "illustrates")
+
+claim = ik.create_tag("claim", "A statement to defend", kind="node")
+ik.set_tag(claim, thesis)
+ik.supersede_node(thesis, "Understanding is **not** retrieval")
+
+seal = ik.seal()
+print(ik.index.alias_of(thesis), seal.hash)
+
+reader = Archive.open("first")  # anyone can open it read-only
+item = reader.index.get("e1")
+print(item.body["title"], reader.index.store.blobs.get_text(item.body["blob_hash"]))
+```
+
+## Concepts
+
+### Archives are folders
+
+An archive is a folder of plain files. The **base log** (`events/`) holds the
+knowledge graph; the **meta log** (`meta/events/`) holds tags; the **blob
+store** (`blobs/`) holds content, each file named after the SHA-256 of its
+bytes; the **seal log** (`seals/`) holds signed checkpoints. `ik manifest`
+adds a copy of the specification, a `MANIFEST.json` and test vectors, so the
+archive documents itself.
+
+Each log is a sequence of **events**, one JSON object per line. Nothing is
+ever edited in place: every change appends an event. The logs and the blobs
+are the archive; everything else (aliases, indexes, views) is rebuilt from
+them.
+
+### Authors and signatures
+
+An author is an Ed25519 key pair. Every event records its author's public key
+and is signed by the matching private key, and every event carries the hash
+of the one before it. Change a single byte anywhere in the history and
+verification names the problem: `Chain broken!`, `Data tampered or bad
+author!`, `File corrupted or missing!`, ….
+
+Several authors may write to one archive, each with their own key. Anyone may
+add nodes, edges and tags; only an item's creator may revise it, and only a
+tag's creator may assign it.
+
+### Nodes and edges
+
+A **node** holds content of one of three kinds:
+
+| Resource type | The content… | Durability |
+| --- | --- | --- |
+| `managed` (default) | is copied into the blob store | fully self-contained |
+| `uri` | is an external link, recorded but never fetched | depends on the external host |
+| `local_file` | stays on your disk; its path, size and SHA-256 are recorded | changes are detectable |
+
+Managed content uses archival-safe media types: plain text, Markdown, PNG,
+JPEG, TIFF and PDF/A. An **edge** goes from one node to another and carries
+its own text — "proves", "contradicts", "is an example of". Its endpoints
+never change.
+
+### Revisions
+
+`supersede_node` and `supersede_edge` append new content for an existing
+item, which keeps its identifier and alias. Every earlier version stays in
+the log, so the history of your thinking is part of the archive.
+
+### Identifiers and aliases
+
+Every item has a UUID. Aliases are shorthands computed by replaying the logs:
+`e1`, `e2`, … for nodes **and** edges, `m1`, `m2`, … for tags, the
+*representations* tagging creates, and tag assignments. Any command that
+takes an ID accepts either.
+
+### Tags: the meta network
+
+A tag is defined once — for nodes or for edges — and then assigned. Tags live
+in their own log, which *annotates* the base: each annotation records which
+version of the base its author had seen, so rewriting history invalidates
+the annotations made on it. The base never refers to the meta log, so a base
+can be shared on its own, and anyone can annotate someone else's graph with
+their own vocabulary.
+
+### Verification and seals
+
+Opening an archive verifies it. By default, IndieK skips only the signature
+checks your own machine already performed — the hash chain is always
+recomputed — so reopening a large archive is fast; `--verify full` checks
+everything.
+
+A **seal** is a signed checkpoint of both logs and of the blobs they use. Its
+hash commits to the entire archive: publish it, and anyone holding a copy can
+run `ik verify --expect <hash>` to check that their copy contains exactly
+what you sealed.
+
+### Transcriptions
+
+Cryptography ages. A **transcription** event, signed with current
+algorithms, attests "I verified this log up to here, on this date". Over
+generations, transcriptions carry an archive's chain of custody forward.
+
+## Where to go next
+
+- [Examples](/docs/examples/) — research notebooks, two-author debates,
+  publishing and checking archives, reading an archive without IndieK.
+- [Python SDK reference](/docs/sdk/) and [`ik` CLI reference](/docs/cli/).
+- [Format specification](/docs/format/) — for implementers.
