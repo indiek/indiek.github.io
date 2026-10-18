@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Examples — IndieK</title>
+    <meta name="description" content="Worked IndieK examples: a research notebook, a two-author debate, publishing and checking a seal, reading an archive without IndieK, long-term custody, bulk import.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/site.js"></script>
+    
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="1a61fc2b-ae27-4e34-b9f3-668d65e0036b"></script>
+    
+</head>
+
+<body class="is-doc">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">◆</span> IndieK
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show navigation">
+            <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">☰</label>
+            <nav class="topnav" aria-label="Main">
+                
+                <a href="/docs/mission/" >Vision</a>
+                
+                <a href="/docs/intro/" >Get started</a>
+                
+                <a href="/docs/sdk/" >SDK</a>
+                
+                <a href="/docs/cli/" >CLI</a>
+                
+                <a href="/docs/format/" >Format</a>
+                
+                <a href="/docs/examples/" class="active" aria-current="page">Examples</a>
+                
+            </nav>
+        </div>
+    </header>
+
+    
+    <div class="layout">
+        <aside class="sidebar" aria-label="Documentation">
+            
+            <p class="sidebar-section">Overview</p>
+            <ul>
+                
+                <li><a href="/docs/mission/" >Vision</a></li>
+                
+                <li><a href="/docs/intro/" >Get started</a></li>
+                
+                <li><a href="/docs/examples/" class="active" aria-current="page">Examples</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Reference</p>
+            <ul>
+                
+                <li><a href="/docs/sdk/" >Python SDK</a></li>
+                
+                <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/format/" >Format specification</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Project</p>
+            <ul>
+                
+                <li><a href="/docs/contributing/" >Contributing</a></li>
+                
+                <li><a href="/docs/license/" >License</a></li>
+                
+            </ul>
+            
+        </aside>
+        <main class="content" id="content">
+            <h1 id="examples">Examples</h1>
+
+<p>Each example is self-contained and runs as written, in an empty folder, once
+<code class="language-plaintext highlighter-rouge">indiek</code> is installed (see <a href="/docs/intro/">Get started</a>). The Python examples
+can be pasted into one session in order; the last one uses the shell.</p>
+
+<h2 id="1-a-research-notebook">1. A research notebook</h2>
+
+<p>Claims, sources and doubts, linked by edges that say <em>how</em> they relate — and
+a revision that keeps the original.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">Archive</span><span class="p">,</span> <span class="n">Author</span><span class="p">,</span> <span class="n">ItemKind</span><span class="p">,</span> <span class="n">ResourceType</span>
+
+<span class="n">me</span> <span class="o">=</span> <span class="n">Author</span><span class="p">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">notebook</span> <span class="o">=</span> <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"notebook"</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="n">me</span><span class="p">)</span>
+
+<span class="n">claim</span> <span class="o">=</span> <span class="n">notebook</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span><span class="s">"Sleep consolidates declarative memory."</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">"Claim"</span><span class="p">)</span>
+<span class="n">review</span> <span class="o">=</span> <span class="n">notebook</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span>
+    <span class="n">resource_type</span><span class="o">=</span><span class="n">ResourceType</span><span class="p">.</span><span class="n">URI</span><span class="p">,</span>
+    <span class="n">uri</span><span class="o">=</span><span class="s">"https://doi.org/10.1038/nrn2762"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s">"Diekelmann &amp; Born (2010), The memory function of sleep"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">doubt</span> <span class="o">=</span> <span class="n">notebook</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span>
+    <span class="s">"Replication studies report smaller effects."</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">"Doubt"</span>
+<span class="p">)</span>
+<span class="n">notebook</span><span class="p">.</span><span class="n">create_edge</span><span class="p">(</span><span class="n">review</span><span class="p">,</span> <span class="n">claim</span><span class="p">,</span> <span class="s">"reviews the evidence for"</span><span class="p">)</span>
+<span class="n">notebook</span><span class="p">.</span><span class="n">create_edge</span><span class="p">(</span><span class="n">doubt</span><span class="p">,</span> <span class="n">claim</span><span class="p">,</span> <span class="s">"qualifies"</span><span class="p">)</span>
+
+<span class="c1"># Refine the claim: a new version is appended, the old one stays in the log.
+</span><span class="n">notebook</span><span class="p">.</span><span class="n">supersede_node</span><span class="p">(</span>
+    <span class="n">claim</span><span class="p">,</span> <span class="s">"Sleep *contributes to* the consolidation of declarative memory."</span>
+<span class="p">)</span>
+
+<span class="n">open_question</span> <span class="o">=</span> <span class="n">notebook</span><span class="p">.</span><span class="n">create_tag</span><span class="p">(</span><span class="s">"open-question"</span><span class="p">,</span> <span class="s">"Needs more reading"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s">"node"</span><span class="p">)</span>
+<span class="n">notebook</span><span class="p">.</span><span class="n">set_tag</span><span class="p">(</span><span class="n">open_question</span><span class="p">,</span> <span class="n">claim</span><span class="p">)</span>
+
+<span class="c1"># Everything tagged "open-question", with its current text.
+</span><span class="n">blobs</span> <span class="o">=</span> <span class="n">notebook</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">store</span><span class="p">.</span><span class="n">blobs</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">notebook</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">items</span><span class="p">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">item</span><span class="p">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="n">ItemKind</span><span class="p">.</span><span class="n">NODE</span> <span class="ow">and</span> <span class="n">open_question</span> <span class="ow">in</span> <span class="n">item</span><span class="p">.</span><span class="n">tags</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">alias</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="n">body</span><span class="p">[</span><span class="s">"title"</span><span class="p">],</span> <span class="s">"—"</span><span class="p">,</span> <span class="n">blobs</span><span class="p">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">body</span><span class="p">[</span><span class="s">"blob_hash"</span><span class="p">]))</span>
+
+<span class="c1"># The full history of the claim, oldest first.
+</span><span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">notebook</span><span class="p">.</span><span class="n">events</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="s">"body"</span><span class="p">].</span><span class="n">get</span><span class="p">(</span><span class="s">"node_id"</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">claim</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s">"header"</span><span class="p">][</span><span class="s">"timestamp"</span><span class="p">],</span> <span class="n">blobs</span><span class="p">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s">"body"</span><span class="p">][</span><span class="s">"blob_hash"</span><span class="p">]))</span>
+</code></pre></div></div>
+
+<h2 id="2-two-authors-one-graph">2. Two authors, one graph</h2>
+
+<p>Alice states a thesis; Bob disputes it with his own node, edge and tag. Bob
+can annotate Alice’s work but cannot rewrite it.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">Archive</span><span class="p">,</span> <span class="n">Author</span><span class="p">,</span> <span class="n">AuthorshipError</span>
+
+<span class="n">alice</span><span class="p">,</span> <span class="n">bob</span> <span class="o">=</span> <span class="n">Author</span><span class="p">.</span><span class="n">generate</span><span class="p">(),</span> <span class="n">Author</span><span class="p">.</span><span class="n">generate</span><span class="p">()</span>
+
+<span class="n">as_alice</span> <span class="o">=</span> <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"debate"</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="n">alice</span><span class="p">)</span>
+<span class="n">thesis</span> <span class="o">=</span> <span class="n">as_alice</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span><span class="s">"Remote work raises productivity."</span><span class="p">)</span>
+
+<span class="n">as_bob</span> <span class="o">=</span> <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"debate"</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="n">bob</span><span class="p">)</span>
+<span class="n">rebuttal</span> <span class="o">=</span> <span class="n">as_bob</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span><span class="s">"Not once commuting time is excluded from the measure."</span><span class="p">)</span>
+<span class="n">as_bob</span><span class="p">.</span><span class="n">create_edge</span><span class="p">(</span><span class="n">rebuttal</span><span class="p">,</span> <span class="n">thesis</span><span class="p">,</span> <span class="s">"disputes"</span><span class="p">)</span>
+<span class="n">contested</span> <span class="o">=</span> <span class="n">as_bob</span><span class="p">.</span><span class="n">create_tag</span><span class="p">(</span><span class="s">"contested"</span><span class="p">,</span> <span class="s">"Someone disputes this"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s">"node"</span><span class="p">)</span>
+<span class="n">as_bob</span><span class="p">.</span><span class="n">set_tag</span><span class="p">(</span><span class="n">contested</span><span class="p">,</span> <span class="n">thesis</span><span class="p">)</span>  <span class="c1"># Bob's tag on Alice's node
+</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">as_bob</span><span class="p">.</span><span class="n">supersede_node</span><span class="p">(</span><span class="n">thesis</span><span class="p">,</span> <span class="s">"Remote work lowers productivity."</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">AuthorshipError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>  <span class="c1"># Only the author of Node … may supersede it
+</span>
+<span class="c1"># Alice's session must see Bob's events before writing again.
+</span><span class="n">as_alice</span><span class="p">.</span><span class="n">refresh</span><span class="p">()</span>
+<span class="n">reply</span> <span class="o">=</span> <span class="n">as_alice</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span><span class="s">"Commuting time is part of the cost of office work."</span><span class="p">)</span>
+<span class="n">as_alice</span><span class="p">.</span><span class="n">create_edge</span><span class="p">(</span><span class="n">reply</span><span class="p">,</span> <span class="n">rebuttal</span><span class="p">,</span> <span class="s">"answers"</span><span class="p">)</span>
+
+<span class="n">authors</span> <span class="o">=</span> <span class="p">{</span><span class="n">alice</span><span class="p">.</span><span class="n">public_key_hex</span><span class="p">:</span> <span class="s">"Alice"</span><span class="p">,</span> <span class="n">bob</span><span class="p">.</span><span class="n">public_key_hex</span><span class="p">:</span> <span class="s">"Bob"</span><span class="p">}</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">as_alice</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">items</span><span class="p">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">alias</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="n">kind</span><span class="p">,</span> <span class="s">"by"</span><span class="p">,</span> <span class="n">authors</span><span class="p">[</span><span class="n">item</span><span class="p">.</span><span class="n">author</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>Every event records its author’s public key and signature, so who said what
+is part of the archive and cannot be forged. Refresh (<code class="language-plaintext highlighter-rouge">Archive.refresh()</code>)
+before writing whenever another program or person may have written since you
+opened the archive: each log is a single chain, and a write based on an old
+view would break it.</p>
+
+<h2 id="3-publishing-a-seal-and-checking-a-copy">3. Publishing a seal and checking a copy</h2>
+
+<p>A seal hash is one short string committing to the whole archive. Publish it —
+on a web page, in a paper, in print — and anyone can check that their copy
+holds exactly what you sealed.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">Archive</span><span class="p">,</span> <span class="n">IntegrityError</span>
+
+<span class="n">seal</span> <span class="o">=</span> <span class="n">as_alice</span><span class="p">.</span><span class="n">seal</span><span class="p">()</span>
+<span class="n">published</span> <span class="o">=</span> <span class="n">seal</span><span class="p">.</span><span class="nb">hash</span>
+<span class="k">print</span><span class="p">(</span><span class="n">published</span><span class="p">)</span>  <span class="c1"># sha256:…
+</span>
+<span class="c1"># Someone receives a copy, and the published hash through another channel.
+</span><span class="n">copy</span> <span class="o">=</span> <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"debate"</span><span class="p">,</span> <span class="n">trusted_seal</span><span class="o">=</span><span class="n">published</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">verify</span><span class="p">(</span><span class="n">expect</span><span class="o">=</span><span class="n">published</span><span class="p">).</span><span class="n">seq</span><span class="p">)</span>  <span class="c1"># 1: this copy contains the sealed state
+</span>
+<span class="c1"># Change one stored text behind the archive's back…
+</span><span class="n">blob_path</span> <span class="o">=</span> <span class="n">copy</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">store</span><span class="p">.</span><span class="n">blobs</span><span class="p">.</span><span class="n">path_for</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">thesis</span><span class="p">).</span><span class="n">body</span><span class="p">[</span><span class="s">"blob_hash"</span><span class="p">])</span>
+<span class="n">original</span> <span class="o">=</span> <span class="n">blob_path</span><span class="p">.</span><span class="n">read_bytes</span><span class="p">()</span>
+<span class="n">blob_path</span><span class="p">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="sa">b</span><span class="s">"Remote work lowers productivity."</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"debate"</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="s">"full"</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>  <span class="c1"># File corrupted or missing!
+</span><span class="n">blob_path</span><span class="p">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">original</span><span class="p">)</span>  <span class="c1"># restore it
+</span></code></pre></div></div>
+
+<p>From the shell, the same check is <code class="language-plaintext highlighter-rouge">ik verify --expect &lt;published hash&gt;</code>.
+A seal found inside an archive is always checked, never trusted: anyone can
+seal, so only a hash you obtained from its author proves anything.</p>
+
+<h2 id="4-reading-an-archive-without-indiek">4. Reading an archive without IndieK</h2>
+
+<p>The format is meant to outlive this software. Here is a complete check of a
+base log — chain links and signatures — with the Python standard library and
+PyNaCl only, following the <a href="/docs/format/">specification</a>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">nacl.signing</span> <span class="kn">import</span> <span class="n">VerifyKey</span>
+
+
+<span class="k">def</span> <span class="nf">canonical</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="s">"""Canonical bytes: sorted keys, no whitespace, UTF-8."""</span>
+    <span class="k">return</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s">","</span><span class="p">,</span> <span class="s">":"</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="bp">False</span>
+    <span class="p">).</span><span class="n">encode</span><span class="p">(</span><span class="s">"utf-8"</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">sha256</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">"sha256:"</span> <span class="o">+</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">canonical</span><span class="p">(</span><span class="n">value</span><span class="p">)).</span><span class="n">hexdigest</span><span class="p">()</span>
+
+
+<span class="n">previous</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s">"debate/events"</span><span class="p">).</span><span class="n">rglob</span><span class="p">(</span><span class="s">"*ndjson"</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">path</span><span class="p">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s">"utf-8"</span><span class="p">).</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">previous</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">sha256</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">event</span><span class="p">[</span><span class="s">"header"</span><span class="p">][</span><span class="s">"prev_hash"</span><span class="p">]</span> <span class="o">==</span> <span class="n">expected</span><span class="p">,</span> <span class="s">"chain broken"</span>
+        <span class="n">unsigned</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">event</span><span class="p">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s">"signature"</span><span class="p">}</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s">"signature"</span><span class="p">].</span><span class="n">removeprefix</span><span class="p">(</span><span class="s">"ed25519:"</span><span class="p">))</span>
+        <span class="n">VerifyKey</span><span class="p">(</span><span class="nb">bytes</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s">"header"</span><span class="p">][</span><span class="s">"author"</span><span class="p">])).</span><span class="n">verify</span><span class="p">(</span>
+            <span class="n">canonical</span><span class="p">(</span><span class="n">unsigned</span><span class="p">),</span> <span class="n">signature</span>
+        <span class="p">)</span>
+        <span class="n">previous</span> <span class="o">=</span> <span class="n">event</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"head:"</span><span class="p">,</span> <span class="n">sha256</span><span class="p">(</span><span class="n">previous</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"same as IndieK:"</span><span class="p">,</span> <span class="n">sha256</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span> <span class="o">==</span> <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"debate"</span><span class="p">).</span><span class="n">head</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>A full independent implementation also checks the blobs, the meta anchors and
+the seals, and must reproduce <code class="language-plaintext highlighter-rouge">test_vectors.json</code>.</p>
+
+<h2 id="5-long-term-custody">5. Long-term custody</h2>
+
+<p>Before moving an archive to new storage, or years after it was written,
+attest what you verified and make the archive self-describing:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">curator</span> <span class="o">=</span> <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"debate"</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="n">Author</span><span class="p">.</span><span class="n">generate</span><span class="p">())</span>
+<span class="n">curator</span><span class="p">.</span><span class="n">transcribe</span><span class="p">(</span><span class="n">note</span><span class="o">=</span><span class="s">"Re-verified before migration to new storage"</span><span class="p">)</span>
+<span class="n">curator</span><span class="p">.</span><span class="n">write_manifest</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="s">"debate"</span><span class="p">).</span><span class="n">iterdir</span><span class="p">()))</span>
+<span class="c1"># ['MANIFEST.json', 'SPEC.md', 'blobs', 'events', 'meta', 'seals', 'test_vectors.json']
+</span><span class="n">report</span> <span class="o">=</span> <span class="n">curator</span><span class="p">.</span><span class="n">fsck</span><span class="p">()</span>  <span class="c1"># a full verification, then a summary
+</span><span class="k">print</span><span class="p">(</span><span class="n">report</span><span class="p">.</span><span class="n">base_count</span><span class="p">,</span> <span class="n">report</span><span class="p">.</span><span class="n">meta_count</span><span class="p">,</span> <span class="n">report</span><span class="p">.</span><span class="n">seal_count</span><span class="p">,</span> <span class="n">report</span><span class="p">.</span><span class="n">transcriptions</span><span class="p">)</span>
+<span class="c1"># 6 3 1 {'base': 1, 'meta': 0}
+</span></code></pre></div></div>
+
+<p>The transcription is signed by the curator’s key and records the head and
+length of the log it verified. When SHA-256 or Ed25519 are one day retired,
+transcriptions signed with their successors carry the chain of custody
+forward. <code class="language-plaintext highlighter-rouge">SPEC.md</code> and <code class="language-plaintext highlighter-rouge">test_vectors.json</code> travel with the archive, so a
+reader decades from now needs nothing else.</p>
+
+<h2 id="6-importing-a-folder-of-notes">6. Importing a folder of notes</h2>
+
+<p>With the CLI: every file of a folder becomes a node titled by its name, and
+a small CSV file declares the edges.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ik keygen <span class="nt">--write</span>
+ik config <span class="nt">--set-archive-path</span> ~/archives/reading-notes
+
+<span class="nb">ls </span>notes/
+<span class="c"># attention.md  memory.md  sleep.txt</span>
+
+ik ingest <span class="nt">--input-folder</span> notes          <span class="c"># e1 attention, e2 memory, e3 sleep</span>
+<span class="nb">printf</span> <span class="s1">'e3,e2,supports\ne1,e2,is needed for\n'</span> <span class="o">&gt;</span> edges.csv
+ik ingest <span class="nt">--edges-def-file</span> edges.csv    <span class="c"># e4, e5</span>
+
+ik create_node_tag <span class="nt">--name</span> topic <span class="nt">--description</span> <span class="s2">"A research topic"</span>   <span class="c"># m1</span>
+ik set_tag <span class="nt">--tag</span> m1 <span class="nt">--id</span> e2
+ik <span class="nb">export</span> <span class="nt">--output-path</span> reading-notes.graphml <span class="nt">--tags</span> m1
+ik <span class="nb">read</span>
+</code></pre></div></div>
+
+<p>The GraphML file opens in graph tools such as Gephi or yEd. Hidden files
+(such as <code class="language-plaintext highlighter-rouge">.DS_Store</code>) stop an import; remove them first.</p>
+
+        </main>
+        <aside class="toc" aria-label="On this page">
+            <p class="toc-title">On this page</p>
+            <nav id="toc"></nav>
+        </aside>
+    </div>
+    
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>IndieK — an open archival format for knowledge graphs.</span>
+            <span>Specification, <code>indiek</code> package and website: Apache-2.0 · <a href="/docs/license/">License</a></span>
+        </div>
+    </footer>
+</body>
+
+</html>

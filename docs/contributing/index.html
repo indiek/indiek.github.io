@@ -4,52 +4,187 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Contributing — IndieK Archival Format — Documentation</title>
+    <title>Contributing — IndieK</title>
+    <meta name="description" content="How to contribute to IndieK: the projects, the development workflow and the rules every change follows.">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/site.js"></script>
     
     <script defer src="https://cloud.umami.is/script.js"
         data-website-id="1a61fc2b-ae27-4e34-b9f3-668d65e0036b"></script>
     
 </head>
 
-<body>
-    <header class="site-header">
-        <div class="wrap">
-            <h1 class="site-title"><a href="/">IndieK Archival Format — Documentation</a></h1>
-            <nav class="site-nav">
-                <a href="/">Home</a>
-                <a href="/docs/intro.html">Introduction</a>
-                <a href="/docs/format.html">Format</a>
-                <a href="/docs/contributing.html">Contributing</a>
+<body class="is-doc">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">◆</span> IndieK
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show navigation">
+            <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">☰</label>
+            <nav class="topnav" aria-label="Main">
+                
+                <a href="/docs/mission/" >Vision</a>
+                
+                <a href="/docs/intro/" >Get started</a>
+                
+                <a href="/docs/sdk/" >SDK</a>
+                
+                <a href="/docs/cli/" >CLI</a>
+                
+                <a href="/docs/format/" >Format</a>
+                
+                <a href="/docs/examples/" >Examples</a>
+                
             </nav>
         </div>
     </header>
 
-    <main class="wrap">
-        <article class="content">
-            <p>Contributions are welcome. Please open issues or pull requests to improve the specification, examples, or tooling. Keep changes small and focused. Use SPDX identifiers for licenses and follow existing schema conventions.</p>
+    
+    <div class="layout">
+        <aside class="sidebar" aria-label="Documentation">
+            
+            <p class="sidebar-section">Overview</p>
+            <ul>
+                
+                <li><a href="/docs/mission/" >Vision</a></li>
+                
+                <li><a href="/docs/intro/" >Get started</a></li>
+                
+                <li><a href="/docs/examples/" >Examples</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Reference</p>
+            <ul>
+                
+                <li><a href="/docs/sdk/" >Python SDK</a></li>
+                
+                <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/format/" >Format specification</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Project</p>
+            <ul>
+                
+                <li><a href="/docs/contributing/" class="active" aria-current="page">Contributing</a></li>
+                
+                <li><a href="/docs/license/" >License</a></li>
+                
+            </ul>
+            
+        </aside>
+        <main class="content" id="content">
+            <h1 id="contributing">Contributing</h1>
 
-<p>Suggested workflow:</p>
+<p>IndieK opens to external contributions on <strong>1 November 2026</strong>. Until then,
+this page describes how the project works, so you can get familiar with the
+code and the format; the channels for issues and contributions will be
+announced here on that date.</p>
+
+<h2 id="the-projects">The projects</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Project</th>
+      <th>What it is</th>
+      <th>License</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">indiek</code> (Python package)</td>
+      <td>The SDK (<code class="language-plaintext highlighter-rouge">indiek</code>), the <code class="language-plaintext highlighter-rouge">ik</code> CLI, the normative specification (<code class="language-plaintext highlighter-rouge">src/indiek/spec/SPEC.md</code>) and its test vectors</td>
+      <td>Apache-2.0</td>
+    </tr>
+    <tr>
+      <td>indiek.org</td>
+      <td>This website</td>
+      <td>Apache-2.0</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Inside the package:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>src/indiek/
+├── __init__.py      the public API (indiek.__all__)
+├── sdk.py           the Archive facade
+├── cli.py, read.py  the ik command-line tool
+├── core/            format models, canonical bytes, signing, storage,
+│                    verification, seals, Merkle tree, index, cache
+├── ops/             write operations: nodes, edges, tags, seals, ingest, export, manifest
+└── spec/            SPEC.md and test_vectors.json
+tests/
+├── sdk/             SDK tests (never import the CLI)
+└── cli/             CLI tests
+scripts/             test-vector generator and helpers
+</code></pre></div></div>
+
+<h2 id="development-workflow">Development workflow</h2>
+
+<p>The project uses <a href="https://docs.astral.sh/uv/">uv</a> for everything Python.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uv <span class="nb">sync</span>                                       <span class="c"># create the environment</span>
+uv run pytest                                 <span class="c"># the test suite</span>
+uv run pytest <span class="nt">-m</span> slow                         <span class="c"># the 10,000-event performance test</span>
+uv run ruff check src tests scripts           <span class="c"># lint</span>
+uv run ruff format <span class="nt">--check</span> src tests scripts  <span class="c"># formatting</span>
+uv run ik <span class="nt">--help</span>                              <span class="c"># the CLI from your working copy</span>
+</code></pre></div></div>
+
+<h2 id="rules-for-every-change">Rules for every change</h2>
+
+<ul>
+  <li><strong>Tests first.</strong> Every feature and every bug fix comes with tests; the
+suite must stay green, lint and formatting clean.</li>
+  <li><strong>A changelog entry</strong> in <code class="language-plaintext highlighter-rouge">CHANGELOG.md</code>, in the section of the upcoming
+release.</li>
+  <li><strong>Versioning.</strong> The package follows semantic versioning: a new feature
+bumps the minor version, a fix the patch version.</li>
+  <li><strong>Small, focused changes</strong>, with modern, fully typed Python.</li>
+  <li><strong>The README examples are executed by the tests</strong>: keep them runnable.</li>
+  <li><strong>The SDK never imports CLI dependencies</strong> (<code class="language-plaintext highlighter-rouge">rich</code>, <code class="language-plaintext highlighter-rouge">python-dotenv</code>); a
+test enforces it.</li>
+</ul>
+
+<h2 id="changing-the-format">Changing the format</h2>
+
+<p>The format is the part of IndieK that must last, so changes to it follow
+stricter rules:</p>
 
 <ol>
-  <li>Open an issue describing the change.</li>
-  <li>Submit a PR with updates to <code class="language-plaintext highlighter-rouge">docs/</code> and example archives in <code class="language-plaintext highlighter-rouge">examples/</code>.</li>
-  <li>Maintain semantic versioning for the spec.</li>
+  <li>Update <code class="language-plaintext highlighter-rouge">SPEC.md</code>, the normative specification, in the same change as the
+code.</li>
+  <li>Regenerate the test vectors with
+<code class="language-plaintext highlighter-rouge">uv run python scripts/make_test_vectors.py</code> and explain any changed value.</li>
+  <li>A change that alters what is valid needs a new format version. From
+format 3.0 on, every published version stays readable.</li>
+  <li>Prefer established standards (RFC 8785, RFC 8032, RFC 6962, RFC 9562) over
+new constructions.</li>
 </ol>
 
-        </article>
-        <aside class="sidebar">
-            <h3>On this site</h3>
-            <ul>
-                <li><a href="/docs/intro.html">Introduction</a></li>
-                <li><a href="/docs/format.html">Format specification</a></li>
-                <li><a href="/docs/contributing.html">Contributing</a></li>
-            </ul>
-        </aside>
-    </main>
+<p>This website’s <a href="/docs/format/">format page</a>, <a href="/docs/sdk/">SDK</a> and
+<a href="/docs/cli/">CLI</a> references are generated from the package’s <code class="language-plaintext highlighter-rouge">SPEC.md</code> and
+<code class="language-plaintext highlighter-rouge">README.md</code> (<code class="language-plaintext highlighter-rouge">scripts/sync_docs.py</code> in the website’s sources); fix the
+source, not the generated page.</p>
 
-    <footer class="site-footer">
-        <div class="wrap">© FOSS Archival Format — Documentation</div>
+        </main>
+        <aside class="toc" aria-label="On this page">
+            <p class="toc-title">On this page</p>
+            <nav id="toc"></nav>
+        </aside>
+    </div>
+    
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>IndieK — an open archival format for knowledge graphs.</span>
+            <span>Specification, <code>indiek</code> package and website: Apache-2.0 · <a href="/docs/license/">License</a></span>
+        </div>
     </footer>
 </body>
 

@@ -4,93 +4,143 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Mission & Vision — IndieK Archival Format — Documentation</title>
+    <title>Vision — IndieK</title>
+    <meta name="description" content="Why IndieK exists: fostering knowledge creation, in one mind and between minds that disagree.">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/site.js"></script>
     
     <script defer src="https://cloud.umami.is/script.js"
         data-website-id="1a61fc2b-ae27-4e34-b9f3-668d65e0036b"></script>
     
 </head>
 
-<body>
-    <header class="site-header">
-        <div class="wrap">
-            <h1 class="site-title"><a href="/">IndieK Archival Format — Documentation</a></h1>
-            <nav class="site-nav">
-                <a href="/">Home</a>
-                <a href="/docs/intro.html">Introduction</a>
-                <a href="/docs/format.html">Format</a>
-                <a href="/docs/contributing.html">Contributing</a>
+<body class="is-doc">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">◆</span> IndieK
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show navigation">
+            <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">☰</label>
+            <nav class="topnav" aria-label="Main">
+                
+                <a href="/docs/mission/" class="active" aria-current="page">Vision</a>
+                
+                <a href="/docs/intro/" >Get started</a>
+                
+                <a href="/docs/sdk/" >SDK</a>
+                
+                <a href="/docs/cli/" >CLI</a>
+                
+                <a href="/docs/format/" >Format</a>
+                
+                <a href="/docs/examples/" >Examples</a>
+                
             </nav>
         </div>
     </header>
 
-    <main class="wrap">
-        <article class="content">
-            <h1 id="mission--vision">Mission &amp; Vision</h1>
+    
+    <div class="layout">
+        <aside class="sidebar" aria-label="Documentation">
+            
+            <p class="sidebar-section">Overview</p>
+            <ul>
+                
+                <li><a href="/docs/mission/" class="active" aria-current="page">Vision</a></li>
+                
+                <li><a href="/docs/intro/" >Get started</a></li>
+                
+                <li><a href="/docs/examples/" >Examples</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Reference</p>
+            <ul>
+                
+                <li><a href="/docs/sdk/" >Python SDK</a></li>
+                
+                <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/format/" >Format specification</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Project</p>
+            <ul>
+                
+                <li><a href="/docs/contributing/" >Contributing</a></li>
+                
+                <li><a href="/docs/license/" >License</a></li>
+                
+            </ul>
+            
+        </aside>
+        <main class="content" id="content">
+            <h1 id="vision">Vision</h1>
 
 <h2 id="the-mission">The mission</h2>
 
 <p><strong>To foster knowledge creation and knowledge management.</strong></p>
 
-<p>The human psyche and human cognition have the potential to do much more — in
-particular when it comes to their interaction with the digital world — than what
-currently exists. The current digital ecosystem (operating systems, apps, the
-web, AI) still only scratches the surface of the potential of human cognition.</p>
+<p>Human cognition can do far more in its interaction with the digital world
+than what exists today. Operating systems, apps, the web and AI still only
+scratch the surface of what a person can build when they think with a
+machine.</p>
 
 <p>There is a big difference between <em>having a ton of information online</em> — as
-Wikipedia does — and <em>understanding</em>, at a technical and individual level, a
-complex topic the way a molecular biologist understands their field. Access to
-information is not understanding. IndieK is built around that distinction.</p>
+an encyclopedia does — and <em>understanding</em>, at a technical and individual
+level, a complex topic the way a molecular biologist understands their field.
+Access to information is not understanding. IndieK is built around that
+distinction.</p>
 
 <p>IndieK aims at fostering <strong>knowledge creation at the level of individual
-psyches</strong>. It also targets <strong>collaborative knowledge generation, via debating</strong>.</p>
+minds</strong>, and <strong>collaborative knowledge generation through debate</strong>.</p>
 
 <h2 id="the-vision">The vision</h2>
 
 <p>Two movements, one substrate:</p>
 
 <ol>
-  <li>
-    <p><strong>The individual.</strong> A person building genuine understanding of a complex
-topic needs to externalise structure, not just store documents. They need to
-connect, contradict, revise, and re-read their own thinking over years —
+  <li><strong>The individual.</strong> A person building genuine understanding of a complex
+topic needs to externalise structure, not just store documents. They need
+to connect, contradict, revise and re-read their own thinking over years —
 without their work being trapped in a vendor’s database or in a format that
-dies with the app that wrote it.</p>
-  </li>
-  <li>
-    <p><strong>The collective.</strong> Understanding sharpens against opposition. IndieK treats
-<strong>debate</strong> as a first-class knowledge-generating activity rather than as
-social noise, and models it on the same substrate as individual thought.</p>
-  </li>
+dies with the app that wrote it.</li>
+  <li><strong>The collective.</strong> Understanding sharpens against opposition. IndieK treats
+<strong>debate</strong> as a first-class, knowledge-generating activity rather than as
+noise, and models it on the same substrate as individual thought: a claim,
+a rebuttal and the edge between them are all signed, attributable and
+revisable.</li>
 </ol>
 
 <p>Both rest on the same technical foundation: a durable, verifiable,
-implementation-independent knowledge graph archive that a person owns.</p>
+implementation-independent knowledge graph archive that its authors own.</p>
 
 <h2 id="the-bet">The bet</h2>
 
-<p>IndieK’s current bet is to <strong>leverage knowledge graphs with very loose
-restrictions on the data format</strong>:</p>
+<p>IndieK bets on <strong>knowledge graphs with very loose restrictions on the data
+format</strong>:</p>
 
 <ul>
   <li>Versatile data may be attached to <strong>both nodes and edges</strong>. An edge is not a
-bare pointer — it carries content, and can be argued about, tagged and revised
-exactly like a node.</li>
-  <li><strong>Tags may be designed freely</strong> for both edges and nodes. IndieK ships no
-fixed ontology, no mandatory schema, and no imposed taxonomy. You invent the
+bare pointer: it carries content, and can be argued about, tagged and
+revised exactly like a node.</li>
+  <li><strong>Tags are designed freely</strong> for both nodes and edges. IndieK ships no fixed
+ontology, no mandatory schema and no imposed taxonomy. You invent the
 vocabulary your topic needs.</li>
 </ul>
 
 <p>This looseness is deliberate. A rigid schema encodes someone else’s
 understanding of your domain; premature structure is the enemy of knowledge
-creation. IndieK constrains <em>durability</em> (content-addressed data, signed
-append-only history, archival-safe media types) and leaves <em>meaning</em> to you.</p>
+creation. IndieK constrains <em>durability</em> — content-addressed data, a signed
+append-only history, archival-safe media types — and leaves <em>meaning</em> to you.</p>
 
-<h2 id="what-that-implies-technically">What that implies technically</h2>
+<h2 id="built-for-the-long-run">Built for the long run</h2>
 
-<p>The bet above is what produces the design choices documented in the
-<a href="/docs/format/">format specification</a>:</p>
+<p>An archive should outlive the software that wrote it, the company that
+published that software, and the cryptography it was signed with. That goal
+drives every technical choice:</p>
 
 <table>
   <thead>
@@ -102,67 +152,59 @@ append-only history, archival-safe media types) and leaves <em>meaning</em> to y
   <tbody>
     <tr>
       <td>Your archive must outlive our software</td>
-      <td>Plain directories, NDJSON, a self-describing <code class="language-plaintext highlighter-rouge">MANIFEST.json</code></td>
+      <td>Plain folders and UTF-8 text logs; every archive carries its own specification, schemas and test vectors</td>
+    </tr>
+    <tr>
+      <td>The spec must be reimplementable</td>
+      <td>One canonical JSON form (a subset of RFC 8785), SHA-256, Ed25519, an RFC 6962 Merkle tree — nothing exotic</td>
     </tr>
     <tr>
       <td>History is knowledge, not clutter</td>
-      <td>Append-only event log; nothing is ever edited or deleted, only <em>superseded</em></td>
+      <td>Append-only logs; nothing is edited or deleted, only <em>superseded</em></td>
     </tr>
     <tr>
       <td>Data belongs to nodes <em>and</em> edges</td>
-      <td>Both carry a resource (blob, URI, or local-file reference)</td>
+      <td>Both carry content: managed in the archive, a URI, or a fingerprinted local file</td>
     </tr>
     <tr>
       <td>Debate requires attribution</td>
-      <td>Every event is Ed25519-signed by its author</td>
+      <td>Every event is signed by its author; only an item’s author may revise it</td>
     </tr>
     <tr>
       <td>Tampering must be detectable</td>
-      <td>Hash-chained events, content-addressed blobs</td>
+      <td>Hash-chained events, content-addressed blobs, annotations anchored to the history they annotate</td>
     </tr>
     <tr>
-      <td>Vocabulary is yours</td>
-      <td>Free-form tags, modelled as a separate “meta-network” graph</td>
+      <td>Checking must not depend on anyone</td>
+      <td>Seals: one published hash lets anyone verify a copy offline</td>
     </tr>
     <tr>
-      <td>Collaboration should not need a server</td>
-      <td>An archive is a directory — so git handles collaboration</td>
+      <td>Cryptography ages</td>
+      <td>Every hash and signature names its algorithm; <em>transcription</em> events re-attest old history under new algorithms</td>
+    </tr>
+    <tr>
+      <td>A flipped bit must not destroy an archive</td>
+      <td>Line-oriented text: damage stays local and is always reported precisely</td>
     </tr>
   </tbody>
 </table>
 
-<h2 id="the-products">The products</h2>
+<p>The details are in the <a href="/docs/format/">format specification</a>.</p>
 
-<p>IndieK is an ecosystem, split along a clear line: <strong>the format and the local
-tools are free and open source; the hosted, networked services are
-proprietary.</strong> See <a href="/docs/intro/">Introduction</a> for how the pieces fit together
-and <a href="/docs/license/">Licenses</a> for the legal terms.</p>
+<h2 id="what-exists-today">What exists today</h2>
 
-<h3 id="free-and-open-source">Free and open source</h3>
+<p>Everything described on this site is free and open source:</p>
 
 <ul>
-  <li><strong>The IndieK archival format</strong> — the specification on this site. Apache-2.0.</li>
-  <li><strong><code class="language-plaintext highlighter-rouge">ik</code>, the Python CLI</strong> — the reference implementation for creating, reading,
-verifying and exporting archives. Apache-2.0. See the
-<a href="/docs/cli/">CLI reference</a>.</li>
-  <li><strong>The IndieK Desktop App</strong> — a packaged backend + frontend that runs <strong>100%
-locally and fully offline</strong>, taking local repositories as input. Because an
-archive is just a directory, a knowledge graph can be built collaboratively
-using nothing but git.</li>
-  <li><strong>indiek.org</strong> — this documentation site.</li>
+  <li><strong>The IndieK archive format</strong>, version 3.0 — the <a href="/docs/format/">specification</a>.</li>
+  <li><strong>The <code class="language-plaintext highlighter-rouge">indiek</code> Python package</strong>, version 1.0.0: a <a href="/docs/sdk/">Python SDK</a>
+and the <a href="/docs/cli/"><code class="language-plaintext highlighter-rouge">ik</code> command-line tool</a>, the reference implementation
+for creating, reading, verifying, sealing and exporting archives.</li>
+  <li><strong>This website</strong>, with <a href="/docs/examples/">examples</a>.</li>
 </ul>
 
-<h3 id="proprietary">Proprietary</h3>
-
-<ul>
-  <li><strong>Cloud-hosted knowledge-graph management web apps.</strong></li>
-  <li><strong>A debating platform</strong> powered by a knowledge-graph backend.</li>
-  <li><strong>Premium tiers</strong> for cloud functionality.</li>
-</ul>
-
-<p>The proprietary layer is built <em>on top of</em> the open format. It does not extend
-it, fork it, or gate it: an archive produced by a paid IndieK service is
-readable by the FOSS CLI, and vice versa.</p>
+<p>A local, fully offline desktop application built on the same format is in
+development.</p>
 
 <h2 id="roadmap">Roadmap</h2>
 
@@ -175,46 +217,45 @@ readable by the FOSS CLI, and vice versa.</p>
   </thead>
   <tbody>
     <tr>
-      <td>30 September 2026</td>
-      <td><code class="language-plaintext highlighter-rouge">ik</code> CLI published to PyPI with complete FOSS documentation</td>
+      <td>31 October 2026</td>
+      <td><code class="language-plaintext highlighter-rouge">indiek</code> 1.0 on PyPI, with complete documentation</td>
     </tr>
     <tr>
-      <td>30 September 2026</td>
-      <td>FOSS IndieK Desktop App released (packaged, fully offline-capable)</td>
+      <td>1 November 2026</td>
+      <td>The project opens to external adoption and contributions</td>
     </tr>
     <tr>
-      <td>1 October 2026</td>
-      <td>The FOSS layer opens for external adoption and contribution</td>
+      <td>In progress</td>
+      <td>A local desktop application for browsing and editing archives</td>
     </tr>
   </tbody>
 </table>
 
-<p>Until 1 October 2026 the specification and the CLI should be treated as
-<strong>pre-1.0 and subject to change</strong>. The archival format is at version <code class="language-plaintext highlighter-rouge">2.0</code>.</p>
+<p>From version 1.0 on, every archive written in a published format version
+stays readable by later versions.</p>
 
 <h2 id="where-to-go-next">Where to go next</h2>
 
 <ul>
-  <li><a href="/docs/intro/">Introduction</a> — what IndieK is, all products, and how it works</li>
-  <li><a href="/docs/format/">Format specification</a> — the archival format in full</li>
-  <li><a href="/docs/cli/">CLI reference</a> — every <code class="language-plaintext highlighter-rouge">ik</code> command</li>
+  <li><a href="/docs/intro/">Get started</a> — install, create your first archive, core concepts</li>
+  <li><a href="/docs/examples/">Examples</a> — notebooks, debates, publishing and checking archives</li>
+  <li><a href="/docs/format/">Format specification</a> — the archive format in full</li>
   <li><a href="/docs/contributing/">Contributing</a> — how to get involved</li>
-  <li><a href="/docs/license/">Licenses</a> — Apache-2.0 terms and what they cover</li>
 </ul>
 
-        </article>
-        <aside class="sidebar">
-            <h3>On this site</h3>
-            <ul>
-                <li><a href="/docs/intro.html">Introduction</a></li>
-                <li><a href="/docs/format.html">Format specification</a></li>
-                <li><a href="/docs/contributing.html">Contributing</a></li>
-            </ul>
+        </main>
+        <aside class="toc" aria-label="On this page">
+            <p class="toc-title">On this page</p>
+            <nav id="toc"></nav>
         </aside>
-    </main>
+    </div>
+    
 
-    <footer class="site-footer">
-        <div class="wrap">© FOSS Archival Format — Documentation</div>
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>IndieK — an open archival format for knowledge graphs.</span>
+            <span>Specification, <code>indiek</code> package and website: Apache-2.0 · <a href="/docs/license/">License</a></span>
+        </div>
     </footer>
 </body>
 

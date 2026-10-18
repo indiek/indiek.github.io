@@ -4,153 +4,187 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>IndieK — IndieK Archival Format — Documentation</title>
+    <title>IndieK — Knowledge graphs, archived to last</title>
+    <meta name="description" content="IndieK is an open archival format for knowledge graphs — signed, append-only, verifiable without any software — with a Python SDK and the ik command-line tool.">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/site.js"></script>
     
     <script defer src="https://cloud.umami.is/script.js"
         data-website-id="1a61fc2b-ae27-4e34-b9f3-668d65e0036b"></script>
     
 </head>
 
-<body>
-    <header class="site-header">
-        <div class="wrap">
-            <h1 class="site-title"><a href="/">IndieK Archival Format — Documentation</a></h1>
-            <nav class="site-nav">
-                <a href="/">Home</a>
-                <a href="/docs/intro.html">Introduction</a>
-                <a href="/docs/format.html">Format</a>
-                <a href="/docs/contributing.html">Contributing</a>
+<body class="is-home">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">◆</span> IndieK
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show navigation">
+            <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">☰</label>
+            <nav class="topnav" aria-label="Main">
+                
+                <a href="/docs/mission/" >Vision</a>
+                
+                <a href="/docs/intro/" >Get started</a>
+                
+                <a href="/docs/sdk/" >SDK</a>
+                
+                <a href="/docs/cli/" >CLI</a>
+                
+                <a href="/docs/format/" >Format</a>
+                
+                <a href="/docs/examples/" >Examples</a>
+                
             </nav>
         </div>
     </header>
 
-    <main class="wrap">
-        <article class="content">
-            <h1 id="indiek">IndieK</h1>
+    
+    <main class="home">
+        <section class="hero">
+<div class="hero-inner">
+<div>
+<h1>Knowledge graphs, archived to last.</h1>
+<p>IndieK is an open archival format for knowledge graphs: plain files, signed
+by their authors, append-only, and verifiable by anyone — with nothing but a
+published specification and standard cryptography.</p>
+<div class="buttons">
+<a class="button primary" href="/docs/intro/">Get started</a>
+<a class="button secondary" href="/docs/mission/">Read the vision</a>
+<a class="button secondary" href="/docs/format/">The specification</a>
+</div>
+</div>
+<div>
 
-<p><strong>IndieK is a knowledge graph archival format and the ecosystem of tools built
-around it.</strong></p>
+      <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">Archive</span><span class="p">,</span> <span class="n">Author</span>
 
-<p>Its mission is to <strong>foster knowledge creation and knowledge management</strong> — both
-inside a single mind and between minds that disagree. There is a big difference
-between having a ton of information online and <em>understanding</em> a complex topic
-at a technical, individual level. IndieK is built for the second thing.
-Read the <a href="/docs/mission/">full mission and vision</a>.</p>
+<span class="n">ik</span> <span class="o">=</span> <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"my-archive"</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="n">Author</span><span class="p">.</span><span class="n">generate</span><span class="p">())</span>
 
-<h2 id="start-here">Start here</h2>
+<span class="n">theorem</span> <span class="o">=</span> <span class="n">ik</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span><span class="s">"Gödel's first incompleteness theorem"</span><span class="p">)</span>
+<span class="n">proof</span> <span class="o">=</span> <span class="n">ik</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span><span class="s">"Diagonalisation over provability."</span><span class="p">)</span>
+<span class="n">ik</span><span class="p">.</span><span class="n">create_edge</span><span class="p">(</span><span class="n">proof</span><span class="p">,</span> <span class="n">theorem</span><span class="p">,</span> <span class="s">"proves"</span><span class="p">)</span>
 
-<table>
-  <thead>
-    <tr>
-      <th>If you want to…</th>
-      <th>Go to</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Understand what IndieK is and why</td>
-      <td><a href="/docs/mission/">Mission &amp; Vision</a></td>
-    </tr>
-    <tr>
-      <td>See all the products and how they fit</td>
-      <td><a href="/docs/intro/">Introduction</a></td>
-    </tr>
-    <tr>
-      <td>Implement or parse an archive</td>
-      <td><a href="/docs/format/">Format specification</a></td>
-    </tr>
-    <tr>
-      <td>Use the reference tool</td>
-      <td><a href="/docs/cli/">CLI reference</a></td>
-    </tr>
-    <tr>
-      <td>Contribute</td>
-      <td><a href="/docs/contributing/">Contributing</a></td>
-    </tr>
-    <tr>
-      <td>Check the legal terms</td>
-      <td><a href="/docs/license/">Licenses</a></td>
-    </tr>
-  </tbody>
-</table>
+<span class="n">tag</span> <span class="o">=</span> <span class="n">ik</span><span class="p">.</span><span class="n">create_tag</span><span class="p">(</span><span class="s">"theorem"</span><span class="p">,</span> <span class="s">"A proven statement"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s">"node"</span><span class="p">)</span>
+<span class="n">ik</span><span class="p">.</span><span class="n">set_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">theorem</span><span class="p">)</span>
 
-<h2 id="an-archive-in-thirty-seconds">An archive in thirty seconds</h2>
+<span class="k">print</span><span class="p">(</span><span class="n">ik</span><span class="p">.</span><span class="n">seal</span><span class="p">().</span><span class="nb">hash</span><span class="p">)</span>  <span class="c1"># one hash commits to everything
+</span></code></pre></div>      </div>
 
-<p>An IndieK archive is a <strong>plain directory</strong>. No database, no server, no
-proprietary container:</p>
+    </div>
+</div>
+</section>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-archive/
-├── MANIFEST.json          # self-describing: layout + schemas
-├── events/                # signed, hash-chained, append-only NDJSON log
-│   └── 2026/08/09/events.ndjson
-├── meta/events/           # the same, for tags (the "meta-network")
-│   └── 2026/08/09/events.ndjson
-└── blobs/sha256/          # content-addressed data for nodes and edges
-    └── 26/09/2609c7c2...85e2
-</code></pre></div></div>
+<section class="section">
+<h2>Why IndieK</h2>
+<div class="cards">
+<div class="card"><h3>Plain files</h3><p>An archive is a folder of UTF-8 text logs and content-addressed files. No database, no server, no proprietary container.</p></div>
+<div class="card"><h3>Signed and chained</h3><p>Every event is signed with its author's Ed25519 key and linked to the previous one by a hash. Any change to the history is detected.</p></div>
+<div class="card"><h3>Nothing is overwritten</h3><p>Revisions are new events; earlier versions stay in the log. How your understanding evolved is part of the knowledge.</p></div>
+<div class="card"><h3>Edges carry content</h3><p>A connection between two ideas has its own text, author, tags and history. "Why are these linked?" gets a first-class answer.</p></div>
+<div class="card"><h3>Your vocabulary</h3><p>No fixed ontology. Tags are designed freely, for nodes and for edges, and anyone can annotate a graph with their own key.</p></div>
+<div class="card"><h3>Built to be checked</h3><p>Seals commit to a whole archive in one short hash. Publish it, and anyone can verify their copy — offline, without trusting anyone.</p></div>
+</div>
+</section>
 
-<p>The durable things are <strong>the signed append-only event log</strong> and <strong>the blob
-store</strong>. Together they <em>are</em> the archive. Everything else — indexes, graph
-projections, visualisations, UIs — is a rebuildable projection.</p>
+<section class="section soft">
+<div class="two-col">
+<div>
 
-<p>Three properties follow, and they are the whole point:</p>
+      <h2 id="an-archive-in-thirty-seconds">An archive in thirty seconds</h2>
 
-<ul>
-  <li><strong>Verifiable.</strong> Every event is Ed25519-signed by its author and carries the
-hash of the event before it. The hash of the last event is the archive’s
-canonical identity: two archives are identical if and only if their last event
-hashes match.</li>
-  <li><strong>Durable.</strong> UTF-8 NDJSON, SHA-256 filenames, archival-safe media types, and a
-<code class="language-plaintext highlighter-rouge">MANIFEST.json</code> that documents the whole layout so a future reader needs no
-IndieK code at all.</li>
-  <li><strong>Yours.</strong> It is a directory of files on your disk. Collaboration is
-<code class="language-plaintext highlighter-rouge">git push</code>. There is no service to lose access to.</li>
-</ul>
+      <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-archive/
+├── events/…/events.ndjson       the knowledge graph
+├── meta/events/…/events.ndjson  tags on it
+├── blobs/sha256/71/a0/71a0b5…   content, named by its hash
+├── seals/seals.ndjson           signed checkpoints
+├── SPEC.md                      the specification itself
+└── MANIFEST.json                layout and JSON Schemas
+</code></pre></div>      </div>
 
-<h2 id="loose-by-design">Loose by design</h2>
+    </div>
+<div>
 
-<p>IndieK ships <strong>no fixed ontology</strong>. Versatile data may be attached to <strong>nodes
-<em>and</em> edges</strong>, and tags may be <strong>designed freely</strong> for both. A rigid schema
-would encode someone else’s understanding of your domain; IndieK constrains
-durability and leaves meaning to you.</p>
+      <h2 id="durable-by-design">Durable by design</h2>
 
-<h2 id="try-it">Try it</h2>
+      <p>The signed event logs and the blobs <em>are</em> the archive; every index or view is
+rebuilt from them. Archives carry their own specification and test vectors,
+so a reader in fifty years needs neither this website nor our code. Hashes
+and signatures name their algorithms, and <em>transcription</em> events let future
+generations re-attest old history with newer cryptography.</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uv tool <span class="nb">install </span>ik          <span class="c"># from source until the PyPI release (30 Sep 2026)</span>
-ik manifest                 <span class="c"># write MANIFEST.json into the archive</span>
+      <p><a href="/docs/format/">How the format works →</a></p>
+
+    </div>
+</div>
+</section>
+
+<section class="section">
+<div class="two-col">
+<div>
+
+      <h2 id="from-the-shell">From the shell</h2>
+
+      <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uv tool <span class="nb">install</span> <span class="s1">'indiek[cli]'</span>
+ik keygen <span class="nt">--write</span>
+ik config <span class="nt">--set-archive-path</span> ~/archives/notes
 ik create_node <span class="nt">--content</span> <span class="s2">"Understanding is not retrieval"</span>
-ik create_node <span class="nt">--content</span> <span class="s2">"Wikipedia is retrieval"</span>
+ik create_node <span class="nt">--content</span> ./notes/limits.md
 ik create_edge <span class="nt">--source-node</span> e2 <span class="nt">--target-node</span> e1 <span class="nt">--content</span> <span class="s2">"illustrates"</span>
-ik <span class="nb">read</span> <span class="nt">--mini</span>              <span class="c"># inspect the log</span>
-ik <span class="nb">export</span> <span class="nt">--output-path</span> graph.graphml
-</code></pre></div></div>
+ik seal
+ik verify
+</code></pre></div>      </div>
 
-<p>Full setup — including the two environment variables <code class="language-plaintext highlighter-rouge">ik</code> needs and how to
-generate an author key — is in the <a href="/docs/cli/">CLI reference</a>.</p>
+      <p><a href="/docs/cli/">CLI reference →</a></p>
 
-<h2 id="status">Status</h2>
+    </div>
+<div>
 
-<p>Pre-1.0. The archival format is at version <strong>2.0</strong>. The specification and the
-CLI are subject to change until <strong>1 October 2026</strong>, when the FOSS layer opens
-for external adoption and contribution.</p>
+      <h2 id="from-python">From Python</h2>
 
-<p>The format specification and the <code class="language-plaintext highlighter-rouge">ik</code> CLI are licensed under
-<strong>Apache License 2.0</strong>. See <a href="/docs/license/">Licenses</a>.</p>
+      <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">Archive</span>
 
-        </article>
-        <aside class="sidebar">
-            <h3>On this site</h3>
-            <ul>
-                <li><a href="/docs/intro.html">Introduction</a></li>
-                <li><a href="/docs/format.html">Format specification</a></li>
-                <li><a href="/docs/contributing.html">Contributing</a></li>
-            </ul>
-        </aside>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="s">"my-archive"</span><span class="p">)</span>  <span class="c1"># read-only
+</span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">items</span><span class="p">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">alias</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="n">author</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="n">verify</span><span class="p">())</span>       <span class="c1"># full check, latest seal
+</span><span class="k">print</span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="n">fsck</span><span class="p">().</span><span class="n">blob_files</span><span class="p">)</span>
+</code></pre></div>      </div>
+
+      <p><a href="/docs/sdk/">SDK reference →</a> · <a href="/docs/examples/">Examples →</a></p>
+
+    </div>
+</div>
+</section>
+
+<section class="section soft">
+<div>
+
+    <h2 id="status">Status</h2>
+
+    <div class="status">
+<span><strong>indiek 1.0.0</strong> — Python SDK and <code>ik</code> CLI</span>
+<span><strong>Format 3.0</strong> — first public version</span>
+<span><strong>1 November 2026</strong> — contributions open</span>
+<span><strong>Desktop app</strong> — development is underway</span>
+</div>
+
+    <p>The format specification and the <code class="language-plaintext highlighter-rouge">indiek</code> package are free and open source
+under the Apache License 2.0. Read <a href="/docs/mission/">the vision</a>, then
+<a href="/docs/intro/">get started</a>.</p>
+
+  </div>
+</section>
+
     </main>
+    
 
-    <footer class="site-footer">
-        <div class="wrap">© FOSS Archival Format — Documentation</div>
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>IndieK — an open archival format for knowledge graphs.</span>
+            <span>Specification, <code>indiek</code> package and website: Apache-2.0 · <a href="/docs/license/">License</a></span>
+        </div>
     </footer>
 </body>
 
