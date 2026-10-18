@@ -13,7 +13,7 @@ explains the handful of concepts behind it. For the *why*, read the
 ## Install
 
 IndieK needs Python 3.14 or newer. The `indiek` package contains both the
-Python SDK and the `ik` command-line tool.
+Python SDK and the `ik` command-line tool. It is [hosted on GitHub](https://github.com/indiek/indiek) and [distributed through PyPI](https://pypi.org/project/indiek/).
 
 ```bash
 uv tool install 'indiek[cli]'   # the ik command

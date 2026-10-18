@@ -5,10 +5,8 @@ description: "How to contribute to IndieK: the projects, the development workflo
 
 # Contributing
 
-IndieK opens to external contributions on **1 November 2026**. Until then,
-this page describes how the project works, so you can get familiar with the
-code and the format; the channels for issues and contributions will be
-announced here on that date.
+IndieK opens to external contributions on **1 November 2026**. This page describes how the project works, so you can get familiar with the
+code and the format; the channel for issues and contributions is this [GitHub repo](https://github.com/indiek/indiek).
 
 ## The projects
 
