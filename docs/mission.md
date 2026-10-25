@@ -82,22 +82,18 @@ The details are in the [format specification](/docs/format/).
 
 Everything described on this site is free and open source:
 
-- **The IndieK archive format**, version 3.0 — the [specification](/docs/format/).
-- **The `indiek` Python package**, version 1.0.0: a [Python SDK](/docs/sdk/)
+- **The IndieK archive format**, version 3.1 — the [specification](/docs/format/).
+- **The `indiek` Python package**, version 1.3.0: a [Python SDK](/docs/sdk/)
   and the [`ik` command-line tool](/docs/cli/), the reference implementation
   for creating, reading, verifying, sealing and exporting archives.
 - **This website**, with [examples](/docs/examples/).
-
-A local, fully offline desktop application built on the same format is in
-development.
 
 ## Roadmap
 
 | Date | Milestone |
 | --- | --- |
-| 31 October 2026 | `indiek` 1.0 on PyPI, with complete documentation |
+| 18 October 2026 | `indiek` 1.0 on PyPI, with complete documentation (done) |
 | 1 November 2026 | The project opens to external adoption and contributions |
-| In progress | A local desktop application for browsing and editing archives |
 
 From version 1.0 on, every archive written in a published format version
 stays readable by later versions.

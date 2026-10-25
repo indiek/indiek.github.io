@@ -6,7 +6,7 @@ description: "Complete reference of the indiek Python SDK."
 {% raw %}
 # Python SDK reference
 
-The `indiek` package is the reference implementation of the IndieK archive format. Install it with `uv add indiek` (or `pip install indiek`); it needs Python 3.14 or newer and depends only on `pydantic` and `pynacl`. The examples below form one story: each builds on the previous ones.
+The `indiek` package is the reference implementation of the IndieK archive format. Install it with `uv add indiek` (or `pip install indiek`); it needs Python 3.14 or newer and depends only on `pydantic`, `pynacl` and `filelock` (the `keychain` extra adds `keyring`). The examples below form one story: each builds on the previous ones.
 
 ## Quickstart
 
@@ -67,6 +67,39 @@ assert same.public_key_hex == author.public_key_hex  # what events record as aut
 
 `repr(author)` shows only the public key.
 
+## Keys in the OS keychain
+
+`indiek.keys` stores one author key per OS user in the operating system's
+keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service),
+shared by every program built on `indiek`, such as `ik`. Needs the `keychain` (or `cli`)
+extra.
+
+```py
+from indiek import keys
+
+keys.resolve_author(environ=None) -> ResolvedAuthor   # .author (Author | None), .source (KeySource)
+keys.store_in_keychain(author, *, overwrite=False) -> None
+keys.load_from_keychain() -> Author | None
+keys.delete_from_keychain() -> bool
+keys.keychain_available() -> bool
+keys.export_backup(author, password) -> bytes          # password-encrypted backup file
+keys.import_backup(data, password) -> Author
+```
+
+- **Precedence.** `resolve_author()` returns the key of `IK_AUTHOR_PRIVATE_KEY`
+  if set (`KeySource.ENV`), else the keychain key (`KeySource.KEYCHAIN`), else
+  no author (`KeySource.NONE`, read-only). A malformed `IK_AUTHOR_PRIVATE_KEY`
+  raises `ValueError` rather than falling back.
+- **No usable keychain** (no backend, locked, `keyring` not installed):
+  `KeychainUnavailableError`; use `IK_AUTHOR_PRIVATE_KEY` instead. The seed is
+  never written to a plaintext file behind your back.
+- **Replacing** a stored key needs `overwrite=True`, otherwise `KeychainError`.
+- **Backups** are UTF-8 JSON files: the public key in clear, the seed
+  encrypted with XSalsa20-Poly1305 under a key derived from the password by
+  Argon2id (moderate cost: 256 MiB, a few seconds). Passwords need at least 12
+  characters. A wrong password or a damaged file raises
+  `ValueError("Wrong password or damaged backup")`.
+
 ## `Archive.open`
 
 ```py
@@ -77,6 +110,7 @@ Archive.open(
     verify="incremental",    # "none" | "incremental" | "full" (or VerificationLevel)
     trusted_seal=None,       # a seal hash you obtained separately
     cache_dir=None,          # verification cache; default: IK_CACHE_DIR or the OS cache dir
+    lock_timeout=None,       # seconds a write waits for another writer; default 10
 ) -> Archive
 ```
 
@@ -85,7 +119,19 @@ log (see [Verification levels](/docs/cli/#verification-levels-and-the-trust-mode
 then builds the in-memory index. A folder that does not exist is an empty
 archive; it is created on the first write. Raises `IntegrityError` if the
 archive is corrupted or tampered with, or if `trusted_seal` is not in its
-seal log; `ValueError` for an unknown `verify` level.
+seal log; `ValueError` for an unknown `verify` level or a negative
+`lock_timeout`.
+
+**Several writers on one machine.** Writes are serialised across processes
+(for example two `ik` commands on the same archive): every write holds
+the advisory lock file `.ik.lock` at the archive root, re-reads the archive
+inside the lock, so it chains onto the latest event even if another process
+wrote after this `Archive` was opened, then appends and releases. A write
+waits up to `lock_timeout` seconds for the lock, then raises
+`ArchiveLockedError`; reads never take it. `.ik.lock` is not part of the
+archive: readers ignore it, it stays in place after use, and it is safe to
+delete when no `ik` process is running. If the archive lives in a git
+repository, add `.ik.lock` to `.gitignore`.
 
 ```python
 from indiek import Archive, VerificationLevel
@@ -158,6 +204,7 @@ paper = ik.create_node(
 )
 scan = ik.create_node(resource_type=ResourceType.LOCAL_FILE, path="scans/page.tiff")
 proves = ik.create_edge(note, statement, "sketches a proof of")
+see_also = ik.create_edge(diagram, note)  # an edge without content
 ```
 
 `create_node(content=None, *, media_type=None, title=None, resource_type=ResourceType.MANAGED, uri=None, path=None) -> UUID`
@@ -170,14 +217,16 @@ proves = ik.create_edge(note, statement, "sketches a proof of")
   Error: `uri is required for uri nodes`.
 - `local_file`: records the absolute resolved `path`, the file size, its
   SHA-256 and the time; the media type is detected from the file name
-  (`.txt`, `.md`, `.png`, `.jpg`/`.jpeg`, `.tif`/`.tiff`) and the title
+  (`.txt`, `.md`, `.png`, `.jpg`/`.jpeg`, `.tif`/`.tiff`, `.pdf`) and the title
   defaults to the file stem. Errors: `path is required for local_file nodes`,
   `Local file does not exist or is not a regular file: <path>`,
   `Unsupported archival media type for <path>`.
 
-`create_edge(source, target, content) -> UUID` — a directed edge between two
+`create_edge(source, target, content=None) -> UUID` — a directed edge between two
 existing base **nodes**, carrying `content` as `text/plain` (stored
-verbatim). Endpoints are checked before anything is written:
+verbatim). Without `content`, the edge has none: no blob is written and the
+event is stamped format `3.1` (see [Format versions](/docs/format/#21-versioning)).
+Endpoints are checked before anything is written:
 `UnknownItemError` `Unknown ID or alias '<ref>'`,
 `SOURCE NODE <uuid> NOT FOUND IN ARCHIVE`, `TARGET NODE <uuid> NOT FOUND IN ARCHIVE`
 (edges and tags can never be endpoints). Self-loops are allowed.
@@ -188,12 +237,14 @@ verbatim). Endpoints are checked before anything is written:
 ik.supersede_node(theorem, "Gödel's *first* incompleteness theorem (1931)")
 ik.supersede_node(theorem, "Gödel's first incompleteness theorem", title="Gödel 1931")
 ik.supersede_edge("e3", "states, in modern terms")
+ik.supersede_edge(see_also, "illustrates")  # content-less edges can gain content
 ```
 
 `supersede_node(node, content, *, title=None, media_type=MediaType.TEXT_MARKDOWN) -> UUID`
 replaces a node's content with a managed blob; `title=None` keeps the current
-title. `supersede_edge(edge, content) -> UUID` replaces an edge's
-`text/plain` content; endpoints and title are kept. Both return the item's
+title. `supersede_edge(edge, content=None) -> UUID` replaces an edge's
+`text/plain` content, or removes it (`content=None`); endpoints and title
+are kept. Both return the item's
 UUID, which does not change. Errors: `UnknownItemError`
 `Node '<ref>' does not exist in this archive`,
 `ID '<ref>' does not reference a base-network node` (and the edge
@@ -242,7 +293,7 @@ ik.write_manifest()                                # MANIFEST.json, SPEC.md, tes
 
 - `ingest(*, input_folder=None, edges_file=None) -> IngestResult` — every
   entry of `input_folder` (sorted, not recursive) becomes a managed node
-  titled by its stem (text files as text, images as bytes); then every line
+  titled by its stem (text files as text, images and PDFs as bytes); then every line
   `source,target,content` of `edges_file` becomes an edge (split on the
   first two commas; endpoints may be UUIDs or aliases). Stops at the first
   error; earlier writes are kept. See [Known limitations](/docs/cli/#known-limitations).
@@ -340,7 +391,10 @@ IndieKError
 ├── IntegrityError       the archive on disk is corrupted, tampered with or inconsistent
 ├── UnknownItemError     an ID or alias does not resolve (also a ValueError)
 ├── AuthorshipError      the current author may not do this (also a ValueError)
-└── ArchiveRuleError     the write would break a rule of the format (also a ValueError)
+├── ArchiveRuleError     the write would break a rule of the format (also a ValueError)
+├── ArchiveLockedError   another process kept the write lock longer than lock_timeout
+└── KeychainError        the OS keychain refused an operation on the author key
+    └── KeychainUnavailableError   no usable OS keychain (use IK_AUTHOR_PRIVATE_KEY)
 ```
 
 ```python

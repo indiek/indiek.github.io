@@ -21,8 +21,9 @@ uv add indiek                   # the SDK, as a dependency of your project
 pip install 'indiek[cli]'       # or with pip
 ```
 
-The SDK depends only on `pydantic` and `pynacl`; the `cli` extra adds `rich`
-(tables) and `python-dotenv` (configuration files).
+The SDK depends only on `pydantic`, `pynacl` and `filelock`; the `cli` extra
+adds `rich` (tables), `python-dotenv` (configuration files) and `keyring` (the
+OS keychain). SDK users who want the keychain install the `keychain` extra.
 
 ## Your first archive, from the shell
 
@@ -35,7 +36,9 @@ ik config --set-archive-path ~/archives/first       # stored in .env too
 ```
 
 Your key is your signing identity: back up `.env` privately and never share
-it. Now add two ideas and the link between them:
+it. To keep it in your operating system's keychain instead of a plain file,
+run `ik keygen --keychain`, and `ik key_backup --out key.backup` for a
+password-protected backup. Now add two ideas and the link between them:
 
 ```bash
 ik create_node --content "Understanding is not retrieval" --title "Thesis"   # e1
@@ -121,9 +124,9 @@ A **node** holds content of one of three kinds:
 | `local_file` | stays on your disk; its path, size and SHA-256 are recorded | changes are detectable |
 
 Managed content uses archival-safe media types: plain text, Markdown, PNG,
-JPEG, TIFF and PDF/A. An **edge** goes from one node to another and carries
-its own text — "proves", "contradicts", "is an example of". Its endpoints
-never change.
+JPEG, TIFF and PDF/A. An **edge** goes from one node to another and usually carries
+its own text — "proves", "contradicts", "is an example of" — though since
+format 3.1 an edge may also have no content at all. Its endpoints never change.
 
 ### Revisions
 

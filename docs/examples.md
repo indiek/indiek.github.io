@@ -182,7 +182,8 @@ curator.transcribe(note="Re-verified before migration to new storage")
 curator.write_manifest()
 
 print(sorted(path.name for path in Path("debate").iterdir()))
-# ['MANIFEST.json', 'SPEC.md', 'blobs', 'events', 'meta', 'seals', 'test_vectors.json']
+# ['.ik.lock', 'MANIFEST.json', 'SPEC.md', 'blobs', 'events', 'meta', 'seals', 'test_vectors.json']
+# (.ik.lock is the write lock; readers ignore it, like any other root entry)
 report = curator.fsck()  # a full verification, then a summary
 print(report.base_count, report.meta_count, report.seal_count, report.transcriptions)
 # 6 3 1 {'base': 1, 'meta': 0}

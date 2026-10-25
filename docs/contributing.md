@@ -68,7 +68,8 @@ stricter rules:
 2. Regenerate the test vectors with
    `uv run python scripts/make_test_vectors.py` and explain any changed value.
 3. A change that alters what is valid needs a new format version. From
-   format 3.0 on, every published version stays readable.
+   format 3.0 on, every published version stays readable (3.1, for
+   example, only added content-less edges).
 4. Prefer established standards (RFC 8785, RFC 8032, RFC 6962, RFC 9562) over
    new constructions.
 

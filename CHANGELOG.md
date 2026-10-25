@@ -2,6 +2,15 @@
 
 All notable changes to the indiek.org website are documented here.
 
+## 2026-10-25 — documentation for indiek 1.3.0 and format 3.1
+
+### Changed
+- `docs/sdk.md`, `docs/cli.md`, `docs/format.md` regenerated from indiek 1.3.0: format 3.1 (content-less edges), write lock (`.ik.lock`, `lock_timeout`, `ArchiveLockedError`), `.pdf` detection, OS-keychain keys and encrypted backups (`indiek.keys`, `ik keygen --keychain`, `ik key_show`, `ik key_backup`, `ik key_restore`). The format page was still on format 3.0.
+- `scripts/sync_docs.py`: dependency sentence (`filelock`, `keychain` extra), format page description 3.1, README link `#format-versions` mapped to the spec's §21 Versioning, and README phrases mentioning the desktop application reworded; any other mention stops the script (owner decision 2026-10-25: the site does not mention the desktop app yet).
+- Home and Vision pages: indiek 1.3.0, format 3.1; desktop application status and roadmap row removed; the 1.0 roadmap row marked done.
+- Get started: dependencies and extras, `ik keygen --keychain` and `ik key_backup`, edges may have no content.
+- Examples: the archive root listing shows `.ik.lock`. Contributing: 3.1 as an example of a compatible format version.
+
 ## 2026-10-18 — website licensed under Apache-2.0
 
 ### Changed

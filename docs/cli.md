@@ -45,7 +45,10 @@ reports), so it is safe to pipe.
 
 | Command | Purpose | Prints on success |
 | --- | --- | --- |
-| [`keygen`](#ik-keygen) | Generate an author key | `IK_AUTHOR_PRIVATE_KEY=<seed>` (nothing with `--write`) |
+| [`keygen`](#ik-keygen) | Generate an author key | `IK_AUTHOR_PRIVATE_KEY=<seed>` (nothing with `--write` / `--keychain`) |
+| [`key_show`](#ik-key_show) | Show the signing public key and its source | `Public key: <hex>`, `Source: …` |
+| [`key_backup`](#ik-key_backup) | Write a password-encrypted key backup | nothing |
+| [`key_restore`](#ik-key_restore) | Restore a key from a backup | `IK_AUTHOR_PRIVATE_KEY=<seed>` (nothing with `--write` / `--keychain`) |
 | [`config`](#ik-config) | Show or set `IK_ARCHIVE_PATH` | `IK_ARCHIVE_PATH=<value>` |
 | [`create_node`](#ik-create_node) | Add a node (`managed`, `uri`, `local_file`) | `Node created: <uuid>` |
 | [`create_edge`](#ik-create_edge) | Add a directed edge between two nodes | `Edge created: <uuid>` |
@@ -68,13 +71,13 @@ reports), so it is safe to pipe.
 | Variable | Meaning |
 | --- | --- |
 | `IK_ARCHIVE_PATH` | Root folder of the archive (`~` is expanded). |
-| `IK_AUTHOR_PRIVATE_KEY` | The author's Ed25519 seed, 64 hex characters. |
+| `IK_AUTHOR_PRIVATE_KEY` | The author's Ed25519 seed, 64 hex characters. When unset, `ik` signs with the OS keychain key (`ik keygen --keychain`), if any. |
 | `IK_CACHE_DIR` | Optional. Directory of the local verification cache. |
 
 Both main variables can live in the dotenv file (`ik keygen --write`,
 `ik config --set-archive-path`).
 
-- `keygen` and `config` need neither variable.
+- `keygen`, `key_show`, `key_backup`, `key_restore` and `config` need no archive.
 - `read`, `export`, `manifest`, `verify` and `fsck` need only
   `IK_ARCHIVE_PATH`; without a key the archive is opened read-only (and
   `manifest` lists no author).
@@ -86,7 +89,7 @@ Both main variables can live in the dotenv file (`ik keygen --write`,
 | Exit status | Meaning |
 | --- | --- |
 | `0` | Success. |
-| `1` | The command failed: integrity, unknown item, authorship, archive rule, invalid key. One line `ik: error: <message>` on stderr, no traceback (`--logging-level DEBUG` adds it). |
+| `1` | The command failed: integrity, unknown item, authorship, archive rule, archive locked by another writer (after 10 s), invalid key. One line `ik: error: <message>` on stderr, no traceback (`--logging-level DEBUG` adds it). |
 | `2` | Usage error: missing or invalid flag, or `IK_ARCHIVE_PATH` not set. |
 
 A malformed key exits 1 with `ik: error: IK_AUTHOR_PRIVATE_KEY is invalid: <reason>`;
@@ -102,7 +105,8 @@ Generates a fresh Ed25519 author key. Needs neither a key nor an archive.
 | Flag | Meaning |
 | --- | --- |
 | `--write` | Store the seed in the `--dot-env` file (mode `600`) instead of printing it. |
-| `--force` | With `--write`, replace a key already in that file. The old key is lost. |
+| `--keychain` | Store the seed in the OS keychain (shared with every program built on `indiek`) instead of printing it. Exclusive with `--write`. |
+| `--force` | With `--write` / `--keychain`, replace a key already stored there. The old key is lost. |
 
 Without `--write`: prints `IK_AUTHOR_PRIVATE_KEY=<64 hex>` on stdout and
 `Public key: <hex>` on stderr. With `--write`: nothing on stdout; stderr
@@ -112,7 +116,28 @@ signing identity: back it up privately, never share it.
 
 ```bash
 ik --dot-env .env keygen --write
+ik keygen --keychain
 ```
+
+## `ik key_show`
+
+Prints the public key that signs writes and where it comes from
+(`IK_AUTHOR_PRIVATE_KEY` or the OS keychain). Exits 1 with `No author key`
+when there is none. Never prints the seed.
+
+## `ik key_backup`
+
+`ik key_backup --out FILE` writes a password-encrypted backup of the signing
+key (see [Keys in the OS keychain](/docs/sdk/#keys-in-the-os-keychain)). The password is
+asked twice on the terminal (never a flag, so it stays out of shell history)
+and needs at least 12 characters. The file is created with mode `600`; an
+existing file is never overwritten. Keep the file and the password apart.
+
+## `ik key_restore`
+
+`ik key_restore FILE` asks for the backup password and restores the key:
+printed as `IK_AUTHOR_PRIVATE_KEY=<seed>` by default, or stored with `--write`
+(dotenv file) or `--keychain`; `--force` replaces a key already stored there.
 
 ## `ik config`
 
@@ -144,8 +169,8 @@ Appends a `create_node` event.
 | `--media-type` | no | One of the archival media types; a hint for `uri` nodes. |
 
 - **managed**: if `--content` names an existing file, the file is read — text
-  for `.txt`/`.md`, bytes for `.png`, `.jpg`, `.tif`/`.tiff` — with the media
-  type detected from its name; any other file fails with
+  for `.txt`/`.md`, bytes for `.png`, `.jpg`, `.tif`/`.tiff` and `.pdf` — with
+  the media type detected from its name; any other file fails with
   `Unsupported archival media type for <path>` and nothing is written.
   Otherwise `--content` is stored as `text/plain`. `--media-type` is ignored
   for managed nodes. Missing `--content` exits 2.
@@ -174,7 +199,7 @@ Appends a directed edge that carries text.
 | --- | --- | --- |
 | `--source-node` | yes | Source node (UUID or alias). |
 | `--target-node` | yes | Target node (UUID or alias). |
-| `--content` | yes | Edge text, stored verbatim as `text/plain` (a file path is not read). |
+| `--content` | no | Edge text, stored verbatim as `text/plain` (a file path is not read). Omit it for an edge without content. |
 
 Both endpoints must be existing base nodes, checked before anything is
 written (`Unknown ID or alias '<ref>'`, `SOURCE NODE <uuid> NOT FOUND IN ARCHIVE`,
@@ -183,6 +208,7 @@ written (`Unknown ID or alias '<ref>'`, `SOURCE NODE <uuid> NOT FOUND IN ARCHIVE
 
 ```bash
 ik create_edge --source-node e2 --target-node e1 --content "states"
+ik create_edge --source-node e2 --target-node e1   # no content
 ```
 
 ## `ik supersede_node`
@@ -209,7 +235,7 @@ ik supersede_node --node-id e1 --content "Gödel's *first* incompleteness theore
 | Flag | Required | Meaning |
 | --- | --- | --- |
 | `--edge-id` | yes | Edge (UUID or alias). |
-| `--content` | yes | Replacement text (`text/plain`). |
+| `--content` | no | Replacement text (`text/plain`); omit it to remove the edge's content. |
 
 Endpoints and title are kept. Same authorship rule and errors as
 `supersede_node`, for edges.
@@ -274,8 +300,8 @@ Writes the base network as directed GraphML.
 | `--output-path` | yes | Destination file (overwritten). |
 | `--tags` | no | Comma-separated tags (UUIDs or aliases); keeps items carrying any of them. |
 
-Each element carries `author`, `timestamp`, `blob_hash` and, for
-`text/plain` content, a `label`. See [Known limitations](#known-limitations).
+Each element carries `author`, `timestamp`, `blob_hash` (absent for an edge
+without content) and, for `text/plain` content, a `label`. See [Known limitations](#known-limitations).
 
 ```bash
 ik export --output-path theorems.graphml --tags m1,m4
@@ -411,7 +437,8 @@ into the index. Every event names its algorithms (`hash_alg: "sha256"`,
 | --- | --- |
 | `Invalid log line: …` | A line is not UTF-8, not one JSON object, repeats a key, or holds a non-integer number or an integer outside ±(2^53−1). |
 | `Invalid string: lone surrogate …` | A string is not valid Unicode. |
-| `Unsupported format version …` | An event or seal is not format `3.0`. |
+| `Unsupported format version …` | An event is not format `3.0` or `3.1`, or a seal is not `3.0`. |
+| `Invalid resource type 'none': …` | A content-less body is not an edge, is not in a `3.1` event, or has a resource field set. |
 | `Unsupported algorithm …` | `hash_alg` / `sig_alg` missing or unknown. |
 | `Algorithm mismatch …` | A signature or `prev_hash` does not carry the declared algorithm prefix. |
 | `Chain broken!` | An event does not link to the previous one (edited, reordered, inserted or removed events). |
@@ -513,14 +540,19 @@ re-hash them all.
 ## Known limitations
 
 - **One writer per history.** Each log is a single chain. Two copies extended
-  independently cannot be merged (`Chain broken!`), and there is no lock
-  against two local processes writing at the same moment.
+  independently cannot be merged (`Chain broken!`). Processes writing to the
+  same folder on one machine are serialised by `.ik.lock` (see
+  [`Archive.open`](/docs/sdk/#archiveopen)); on network drives (NFS, SMB) that lock may
+  not be honoured.
 - **Clock changes.** Events are filed by their UTC date; writing after the
   system clock moved back across midnight breaks the chain.
 - **`local_file` paths** are absolute paths of the writer's machine.
 - **CLI `--media-type`** is ignored for managed nodes (detected from the
-  file name, or `text/plain`). PDF/A content can only be added from the SDK
-  (`media_type=MediaType.APPLICATION_PDF_A`).
+  file name, or `text/plain`).
+- **PDF/A is not checked.** A `.pdf` file is recorded as
+  `application/pdf; profile=pdfa` without inspecting it: PDF/A shares the
+  `application/pdf` media type, so the type is the writer's claim. Convert
+  ordinary PDFs to PDF/A before adding them.
 - **`export`** ignores supersedes (it shows original content), may keep an
   edge whose endpoint was filtered out, labels only `text/plain` content, and
   `--tags` fails with a `KeyError` on an archive whose base log holds a

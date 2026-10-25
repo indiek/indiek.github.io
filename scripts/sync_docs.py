@@ -33,8 +33,17 @@ EXTERNAL_ANCHORS = {
     "install": "/docs/intro/#install",
     "concepts": "/docs/intro/#concepts",
     "the-archive-format": "/docs/format/",
+    "format-versions": "/docs/format/#21-versioning",
     "contributing": "/docs/contributing/",
     "license": "/docs/license/",
+}
+# The site does not mention the desktop application yet (owner decision
+# 2026-10-25): README phrases that do are reworded; any other mention stops
+# the script.
+NO_DESKTOP = {
+    "shared by `ik` and the IndieK Desktop App.": "shared by every program built on `indiek`, such as `ik`.",
+    "(for example the desktop app and `ik` on the same archive)": "(for example two `ik` commands on the same archive)",
+    "(shared with the desktop app)": "(shared with every program built on `indiek`)",
 }
 
 
@@ -120,6 +129,10 @@ def rewrite_links(pages: dict[str, list[str]]) -> dict[str, str]:
             r"\]\(#([^)]+)\)", lambda m: f"]({target(page, m.group(1))})", text
         )
         text = text.replace("](https://indiek.org/", "](/")
+        for phrase, neutral in NO_DESKTOP.items():
+            text = text.replace(phrase, neutral)
+        if re.search(r"desktop", text, re.IGNORECASE):
+            raise SystemExit(f"docs/{page}.md: unexpected mention of the desktop app")
         texts[page] = text
     return texts
 
@@ -173,7 +186,8 @@ def main() -> None:
         "",
         "The `indiek` package is the reference implementation of the IndieK "
         "archive format. Install it with `uv add indiek` (or `pip install indiek`); "
-        "it needs Python 3.14 or newer and depends only on `pydantic` and `pynacl`. "
+        "it needs Python 3.14 or newer and depends only on `pydantic`, `pynacl` and "
+        "`filelock` (the `keychain` extra adds `keyring`). "
         "The examples below form one story: each builds on the previous ones.",
         "",
         "## Quickstart",
@@ -211,7 +225,7 @@ def main() -> None:
     write(
         "format",
         "Format specification",
-        "The normative specification of the IndieK archive format 3.0.",
+        "The normative specification of the IndieK archive format 3.1.",
         "the indiek package src/indiek/spec/SPEC.md",
         spec + manifest_appendix(),
     )

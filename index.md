@@ -129,10 +129,9 @@ print(reader.fsck().blob_files)
 ## Status
 
 <div class="status">
-<span><strong>indiek 1.0.0</strong> — Python SDK and <code>ik</code> CLI</span>
-<span><strong>Format 3.0</strong> — first public version</span>
+<span><strong>indiek 1.3.0</strong> — Python SDK and <code>ik</code> CLI</span>
+<span><strong>Format 3.1</strong> — reads every version since 3.0</span>
 <span><strong>1 November 2026</strong> — contributions open</span>
-<span><strong>Desktop app</strong> — development is underway</span>
 </div>
 
 The format specification and the `indiek` package are free and open source
