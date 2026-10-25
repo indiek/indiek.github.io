@@ -251,7 +251,8 @@ attest what you verified and make the archive self-describing:</p>
 <span class="n">curator</span><span class="p">.</span><span class="n">write_manifest</span><span class="p">()</span>
 
 <span class="k">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="s">"debate"</span><span class="p">).</span><span class="n">iterdir</span><span class="p">()))</span>
-<span class="c1"># ['MANIFEST.json', 'SPEC.md', 'blobs', 'events', 'meta', 'seals', 'test_vectors.json']
+<span class="c1"># ['.ik.lock', 'MANIFEST.json', 'SPEC.md', 'blobs', 'events', 'meta', 'seals', 'test_vectors.json']
+# (.ik.lock is the write lock; readers ignore it, like any other root entry)
 </span><span class="n">report</span> <span class="o">=</span> <span class="n">curator</span><span class="p">.</span><span class="n">fsck</span><span class="p">()</span>  <span class="c1"># a full verification, then a summary
 </span><span class="k">print</span><span class="p">(</span><span class="n">report</span><span class="p">.</span><span class="n">base_count</span><span class="p">,</span> <span class="n">report</span><span class="p">.</span><span class="n">meta_count</span><span class="p">,</span> <span class="n">report</span><span class="p">.</span><span class="n">seal_count</span><span class="p">,</span> <span class="n">report</span><span class="p">.</span><span class="n">transcriptions</span><span class="p">)</span>
 <span class="c1"># 6 3 1 {'base': 1, 'meta': 0}

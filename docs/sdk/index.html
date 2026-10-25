@@ -81,7 +81,7 @@
 
 <h1 id="python-sdk-reference">Python SDK reference</h1>
 
-<p>The <code class="language-plaintext highlighter-rouge">indiek</code> package is the reference implementation of the IndieK archive format. Install it with <code class="language-plaintext highlighter-rouge">uv add indiek</code> (or <code class="language-plaintext highlighter-rouge">pip install indiek</code>); it needs Python 3.14 or newer and depends only on <code class="language-plaintext highlighter-rouge">pydantic</code> and <code class="language-plaintext highlighter-rouge">pynacl</code>. The examples below form one story: each builds on the previous ones.</p>
+<p>The <code class="language-plaintext highlighter-rouge">indiek</code> package is the reference implementation of the IndieK archive format. Install it with <code class="language-plaintext highlighter-rouge">uv add indiek</code> (or <code class="language-plaintext highlighter-rouge">pip install indiek</code>); it needs Python 3.14 or newer and depends only on <code class="language-plaintext highlighter-rouge">pydantic</code>, <code class="language-plaintext highlighter-rouge">pynacl</code> and <code class="language-plaintext highlighter-rouge">filelock</code> (the <code class="language-plaintext highlighter-rouge">keychain</code> extra adds <code class="language-plaintext highlighter-rouge">keyring</code>). The examples below form one story: each builds on the previous ones.</p>
 
 <h2 id="quickstart">Quickstart</h2>
 
@@ -161,6 +161,40 @@ API.</p>
 
 <p><code class="language-plaintext highlighter-rouge">repr(author)</code> shows only the public key.</p>
 
+<h2 id="keys-in-the-os-keychain">Keys in the OS keychain</h2>
+
+<p><code class="language-plaintext highlighter-rouge">indiek.keys</code> stores one author key per OS user in the operating system’s
+keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service),
+shared by every program built on <code class="language-plaintext highlighter-rouge">indiek</code>, such as <code class="language-plaintext highlighter-rouge">ik</code>. Needs the <code class="language-plaintext highlighter-rouge">keychain</code> (or <code class="language-plaintext highlighter-rouge">cli</code>)
+extra.</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">keys</span>
+
+<span class="n">keys</span><span class="p">.</span><span class="n">resolve_author</span><span class="p">(</span><span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResolvedAuthor</span>   <span class="c1"># .author (Author | None), .source (KeySource)
+</span><span class="n">keys</span><span class="p">.</span><span class="n">store_in_keychain</span><span class="p">(</span><span class="n">author</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span>
+<span class="n">keys</span><span class="p">.</span><span class="n">load_from_keychain</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Author</span> <span class="o">|</span> <span class="bp">None</span>
+<span class="n">keys</span><span class="p">.</span><span class="n">delete_from_keychain</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+<span class="n">keys</span><span class="p">.</span><span class="n">keychain_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+<span class="n">keys</span><span class="p">.</span><span class="n">export_backup</span><span class="p">(</span><span class="n">author</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span>          <span class="c1"># password-encrypted backup file
+</span><span class="n">keys</span><span class="p">.</span><span class="n">import_backup</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Author</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong>Precedence.</strong> <code class="language-plaintext highlighter-rouge">resolve_author()</code> returns the key of <code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code>
+if set (<code class="language-plaintext highlighter-rouge">KeySource.ENV</code>), else the keychain key (<code class="language-plaintext highlighter-rouge">KeySource.KEYCHAIN</code>), else
+no author (<code class="language-plaintext highlighter-rouge">KeySource.NONE</code>, read-only). A malformed <code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code>
+raises <code class="language-plaintext highlighter-rouge">ValueError</code> rather than falling back.</li>
+  <li><strong>No usable keychain</strong> (no backend, locked, <code class="language-plaintext highlighter-rouge">keyring</code> not installed):
+<code class="language-plaintext highlighter-rouge">KeychainUnavailableError</code>; use <code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code> instead. The seed is
+never written to a plaintext file behind your back.</li>
+  <li><strong>Replacing</strong> a stored key needs <code class="language-plaintext highlighter-rouge">overwrite=True</code>, otherwise <code class="language-plaintext highlighter-rouge">KeychainError</code>.</li>
+  <li><strong>Backups</strong> are UTF-8 JSON files: the public key in clear, the seed
+encrypted with XSalsa20-Poly1305 under a key derived from the password by
+Argon2id (moderate cost: 256 MiB, a few seconds). Passwords need at least 12
+characters. A wrong password or a damaged file raises
+<code class="language-plaintext highlighter-rouge">ValueError("Wrong password or damaged backup")</code>.</li>
+</ul>
+
 <h2 id="archiveopen"><code class="language-plaintext highlighter-rouge">Archive.open</code></h2>
 
 <div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Archive</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span>
@@ -170,6 +204,7 @@ API.</p>
     <span class="n">verify</span><span class="o">=</span><span class="s">"incremental"</span><span class="p">,</span>    <span class="c1"># "none" | "incremental" | "full" (or VerificationLevel)
 </span>    <span class="n">trusted_seal</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>       <span class="c1"># a seal hash you obtained separately
 </span>    <span class="n">cache_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>          <span class="c1"># verification cache; default: IK_CACHE_DIR or the OS cache dir
+</span>    <span class="n">lock_timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>       <span class="c1"># seconds a write waits for another writer; default 10
 </span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Archive</span>
 </code></pre></div></div>
 
@@ -178,7 +213,19 @@ log (see <a href="/docs/cli/#verification-levels-and-the-trust-model">Verificati
 then builds the in-memory index. A folder that does not exist is an empty
 archive; it is created on the first write. Raises <code class="language-plaintext highlighter-rouge">IntegrityError</code> if the
 archive is corrupted or tampered with, or if <code class="language-plaintext highlighter-rouge">trusted_seal</code> is not in its
-seal log; <code class="language-plaintext highlighter-rouge">ValueError</code> for an unknown <code class="language-plaintext highlighter-rouge">verify</code> level.</p>
+seal log; <code class="language-plaintext highlighter-rouge">ValueError</code> for an unknown <code class="language-plaintext highlighter-rouge">verify</code> level or a negative
+<code class="language-plaintext highlighter-rouge">lock_timeout</code>.</p>
+
+<p><strong>Several writers on one machine.</strong> Writes are serialised across processes
+(for example two <code class="language-plaintext highlighter-rouge">ik</code> commands on the same archive): every write holds
+the advisory lock file <code class="language-plaintext highlighter-rouge">.ik.lock</code> at the archive root, re-reads the archive
+inside the lock, so it chains onto the latest event even if another process
+wrote after this <code class="language-plaintext highlighter-rouge">Archive</code> was opened, then appends and releases. A write
+waits up to <code class="language-plaintext highlighter-rouge">lock_timeout</code> seconds for the lock, then raises
+<code class="language-plaintext highlighter-rouge">ArchiveLockedError</code>; reads never take it. <code class="language-plaintext highlighter-rouge">.ik.lock</code> is not part of the
+archive: readers ignore it, it stays in place after use, and it is safe to
+delete when no <code class="language-plaintext highlighter-rouge">ik</code> process is running. If the archive lives in a git
+repository, add <code class="language-plaintext highlighter-rouge">.ik.lock</code> to <code class="language-plaintext highlighter-rouge">.gitignore</code>.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">Archive</span><span class="p">,</span> <span class="n">VerificationLevel</span>
 
@@ -280,7 +327,8 @@ events and refreshes <code class="language-plaintext highlighter-rouge">index</c
 </span><span class="p">)</span>
 <span class="n">scan</span> <span class="o">=</span> <span class="n">ik</span><span class="p">.</span><span class="n">create_node</span><span class="p">(</span><span class="n">resource_type</span><span class="o">=</span><span class="n">ResourceType</span><span class="p">.</span><span class="n">LOCAL_FILE</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s">"scans/page.tiff"</span><span class="p">)</span>
 <span class="n">proves</span> <span class="o">=</span> <span class="n">ik</span><span class="p">.</span><span class="n">create_edge</span><span class="p">(</span><span class="n">note</span><span class="p">,</span> <span class="n">statement</span><span class="p">,</span> <span class="s">"sketches a proof of"</span><span class="p">)</span>
-</code></pre></div></div>
+<span class="n">see_also</span> <span class="o">=</span> <span class="n">ik</span><span class="p">.</span><span class="n">create_edge</span><span class="p">(</span><span class="n">diagram</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>  <span class="c1"># an edge without content
+</span></code></pre></div></div>
 
 <p><code class="language-plaintext highlighter-rouge">create_node(content=None, *, media_type=None, title=None, resource_type=ResourceType.MANAGED, uri=None, path=None) -&gt; UUID</code></p>
 
@@ -293,15 +341,17 @@ always taken literally — never read as a file path — and defaults to
 Error: <code class="language-plaintext highlighter-rouge">uri is required for uri nodes</code>.</li>
   <li><code class="language-plaintext highlighter-rouge">local_file</code>: records the absolute resolved <code class="language-plaintext highlighter-rouge">path</code>, the file size, its
 SHA-256 and the time; the media type is detected from the file name
-(<code class="language-plaintext highlighter-rouge">.txt</code>, <code class="language-plaintext highlighter-rouge">.md</code>, <code class="language-plaintext highlighter-rouge">.png</code>, <code class="language-plaintext highlighter-rouge">.jpg</code>/<code class="language-plaintext highlighter-rouge">.jpeg</code>, <code class="language-plaintext highlighter-rouge">.tif</code>/<code class="language-plaintext highlighter-rouge">.tiff</code>) and the title
+(<code class="language-plaintext highlighter-rouge">.txt</code>, <code class="language-plaintext highlighter-rouge">.md</code>, <code class="language-plaintext highlighter-rouge">.png</code>, <code class="language-plaintext highlighter-rouge">.jpg</code>/<code class="language-plaintext highlighter-rouge">.jpeg</code>, <code class="language-plaintext highlighter-rouge">.tif</code>/<code class="language-plaintext highlighter-rouge">.tiff</code>, <code class="language-plaintext highlighter-rouge">.pdf</code>) and the title
 defaults to the file stem. Errors: <code class="language-plaintext highlighter-rouge">path is required for local_file nodes</code>,
 <code class="language-plaintext highlighter-rouge">Local file does not exist or is not a regular file: &lt;path&gt;</code>,
 <code class="language-plaintext highlighter-rouge">Unsupported archival media type for &lt;path&gt;</code>.</li>
 </ul>
 
-<p><code class="language-plaintext highlighter-rouge">create_edge(source, target, content) -&gt; UUID</code> — a directed edge between two
+<p><code class="language-plaintext highlighter-rouge">create_edge(source, target, content=None) -&gt; UUID</code> — a directed edge between two
 existing base <strong>nodes</strong>, carrying <code class="language-plaintext highlighter-rouge">content</code> as <code class="language-plaintext highlighter-rouge">text/plain</code> (stored
-verbatim). Endpoints are checked before anything is written:
+verbatim). Without <code class="language-plaintext highlighter-rouge">content</code>, the edge has none: no blob is written and the
+event is stamped format <code class="language-plaintext highlighter-rouge">3.1</code> (see <a href="/docs/format/#21-versioning">Format versions</a>).
+Endpoints are checked before anything is written:
 <code class="language-plaintext highlighter-rouge">UnknownItemError</code> <code class="language-plaintext highlighter-rouge">Unknown ID or alias '&lt;ref&gt;'</code>,
 <code class="language-plaintext highlighter-rouge">SOURCE NODE &lt;uuid&gt; NOT FOUND IN ARCHIVE</code>, <code class="language-plaintext highlighter-rouge">TARGET NODE &lt;uuid&gt; NOT FOUND IN ARCHIVE</code>
 (edges and tags can never be endpoints). Self-loops are allowed.</p>
@@ -311,12 +361,14 @@ verbatim). Endpoints are checked before anything is written:
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ik</span><span class="p">.</span><span class="n">supersede_node</span><span class="p">(</span><span class="n">theorem</span><span class="p">,</span> <span class="s">"Gödel's *first* incompleteness theorem (1931)"</span><span class="p">)</span>
 <span class="n">ik</span><span class="p">.</span><span class="n">supersede_node</span><span class="p">(</span><span class="n">theorem</span><span class="p">,</span> <span class="s">"Gödel's first incompleteness theorem"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">"Gödel 1931"</span><span class="p">)</span>
 <span class="n">ik</span><span class="p">.</span><span class="n">supersede_edge</span><span class="p">(</span><span class="s">"e3"</span><span class="p">,</span> <span class="s">"states, in modern terms"</span><span class="p">)</span>
-</code></pre></div></div>
+<span class="n">ik</span><span class="p">.</span><span class="n">supersede_edge</span><span class="p">(</span><span class="n">see_also</span><span class="p">,</span> <span class="s">"illustrates"</span><span class="p">)</span>  <span class="c1"># content-less edges can gain content
+</span></code></pre></div></div>
 
 <p><code class="language-plaintext highlighter-rouge">supersede_node(node, content, *, title=None, media_type=MediaType.TEXT_MARKDOWN) -&gt; UUID</code>
 replaces a node’s content with a managed blob; <code class="language-plaintext highlighter-rouge">title=None</code> keeps the current
-title. <code class="language-plaintext highlighter-rouge">supersede_edge(edge, content) -&gt; UUID</code> replaces an edge’s
-<code class="language-plaintext highlighter-rouge">text/plain</code> content; endpoints and title are kept. Both return the item’s
+title. <code class="language-plaintext highlighter-rouge">supersede_edge(edge, content=None) -&gt; UUID</code> replaces an edge’s
+<code class="language-plaintext highlighter-rouge">text/plain</code> content, or removes it (<code class="language-plaintext highlighter-rouge">content=None</code>); endpoints and title
+are kept. Both return the item’s
 UUID, which does not change. Errors: <code class="language-plaintext highlighter-rouge">UnknownItemError</code>
 <code class="language-plaintext highlighter-rouge">Node '&lt;ref&gt;' does not exist in this archive</code>,
 <code class="language-plaintext highlighter-rouge">ID '&lt;ref&gt;' does not reference a base-network node</code> (and the edge
@@ -384,7 +436,7 @@ is unchanged.</p>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">ingest(*, input_folder=None, edges_file=None) -&gt; IngestResult</code> — every
 entry of <code class="language-plaintext highlighter-rouge">input_folder</code> (sorted, not recursive) becomes a managed node
-titled by its stem (text files as text, images as bytes); then every line
+titled by its stem (text files as text, images and PDFs as bytes); then every line
 <code class="language-plaintext highlighter-rouge">source,target,content</code> of <code class="language-plaintext highlighter-rouge">edges_file</code> becomes an edge (split on the
 first two commas; endpoints may be UUIDs or aliases). Stops at the first
 error; earlier writes are kept. See <a href="/docs/cli/#known-limitations">Known limitations</a>.</li>
@@ -542,7 +594,10 @@ tag UUIDs, base items only); properties <code class="language-plaintext highligh
 ├── IntegrityError       the archive on disk is corrupted, tampered with or inconsistent
 ├── UnknownItemError     an ID or alias does not resolve (also a ValueError)
 ├── AuthorshipError      the current author may not do this (also a ValueError)
-└── ArchiveRuleError     the write would break a rule of the format (also a ValueError)
+├── ArchiveRuleError     the write would break a rule of the format (also a ValueError)
+├── ArchiveLockedError   another process kept the write lock longer than lock_timeout
+└── KeychainError        the OS keychain refused an operation on the author key
+    └── KeychainUnavailableError   no usable OS keychain (use IK_AUTHOR_PRIVATE_KEY)
 </code></pre></div></div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">IndieKError</span><span class="p">,</span> <span class="n">UnknownItemError</span>

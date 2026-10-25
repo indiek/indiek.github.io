@@ -94,8 +94,9 @@ uv add indiek                   <span class="c"># the SDK, as a dependency of yo
 pip <span class="nb">install</span> <span class="s1">'indiek[cli]'</span>       <span class="c"># or with pip</span>
 </code></pre></div></div>
 
-<p>The SDK depends only on <code class="language-plaintext highlighter-rouge">pydantic</code> and <code class="language-plaintext highlighter-rouge">pynacl</code>; the <code class="language-plaintext highlighter-rouge">cli</code> extra adds <code class="language-plaintext highlighter-rouge">rich</code>
-(tables) and <code class="language-plaintext highlighter-rouge">python-dotenv</code> (configuration files).</p>
+<p>The SDK depends only on <code class="language-plaintext highlighter-rouge">pydantic</code>, <code class="language-plaintext highlighter-rouge">pynacl</code> and <code class="language-plaintext highlighter-rouge">filelock</code>; the <code class="language-plaintext highlighter-rouge">cli</code> extra
+adds <code class="language-plaintext highlighter-rouge">rich</code> (tables), <code class="language-plaintext highlighter-rouge">python-dotenv</code> (configuration files) and <code class="language-plaintext highlighter-rouge">keyring</code> (the
+OS keychain). SDK users who want the keychain install the <code class="language-plaintext highlighter-rouge">keychain</code> extra.</p>
 
 <h2 id="your-first-archive-from-the-shell">Your first archive, from the shell</h2>
 
@@ -107,7 +108,9 @@ ik config <span class="nt">--set-archive-path</span> ~/archives/first       <spa
 </code></pre></div></div>
 
 <p>Your key is your signing identity: back up <code class="language-plaintext highlighter-rouge">.env</code> privately and never share
-it. Now add two ideas and the link between them:</p>
+it. To keep it in your operating system’s keychain instead of a plain file,
+run <code class="language-plaintext highlighter-rouge">ik keygen --keychain</code>, and <code class="language-plaintext highlighter-rouge">ik key_backup --out key.backup</code> for a
+password-protected backup. Now add two ideas and the link between them:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ik create_node <span class="nt">--content</span> <span class="s2">"Understanding is not retrieval"</span> <span class="nt">--title</span> <span class="s2">"Thesis"</span>   <span class="c"># e1</span>
 ik create_node <span class="nt">--content</span> <span class="s2">"An encyclopedia answers questions; it does not understand them"</span>  <span class="c"># e2</span>
@@ -211,9 +214,9 @@ tag’s creator may assign it.</p>
 </table>
 
 <p>Managed content uses archival-safe media types: plain text, Markdown, PNG,
-JPEG, TIFF and PDF/A. An <strong>edge</strong> goes from one node to another and carries
-its own text — “proves”, “contradicts”, “is an example of”. Its endpoints
-never change.</p>
+JPEG, TIFF and PDF/A. An <strong>edge</strong> goes from one node to another and usually carries
+its own text — “proves”, “contradicts”, “is an example of” — though since
+format 3.1 an edge may also have no content at all. Its endpoints never change.</p>
 
 <h3 id="revisions">Revisions</h3>
 

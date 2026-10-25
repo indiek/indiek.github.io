@@ -152,7 +152,22 @@ reports), so it is safe to pipe.</p>
     <tr>
       <td><a href="#ik-keygen"><code class="language-plaintext highlighter-rouge">keygen</code></a></td>
       <td>Generate an author key</td>
-      <td><code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY=&lt;seed&gt;</code> (nothing with <code class="language-plaintext highlighter-rouge">--write</code>)</td>
+      <td><code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY=&lt;seed&gt;</code> (nothing with <code class="language-plaintext highlighter-rouge">--write</code> / <code class="language-plaintext highlighter-rouge">--keychain</code>)</td>
+    </tr>
+    <tr>
+      <td><a href="#ik-key_show"><code class="language-plaintext highlighter-rouge">key_show</code></a></td>
+      <td>Show the signing public key and its source</td>
+      <td><code class="language-plaintext highlighter-rouge">Public key: &lt;hex&gt;</code>, <code class="language-plaintext highlighter-rouge">Source: …</code></td>
+    </tr>
+    <tr>
+      <td><a href="#ik-key_backup"><code class="language-plaintext highlighter-rouge">key_backup</code></a></td>
+      <td>Write a password-encrypted key backup</td>
+      <td>nothing</td>
+    </tr>
+    <tr>
+      <td><a href="#ik-key_restore"><code class="language-plaintext highlighter-rouge">key_restore</code></a></td>
+      <td>Restore a key from a backup</td>
+      <td><code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY=&lt;seed&gt;</code> (nothing with <code class="language-plaintext highlighter-rouge">--write</code> / <code class="language-plaintext highlighter-rouge">--keychain</code>)</td>
     </tr>
     <tr>
       <td><a href="#ik-config"><code class="language-plaintext highlighter-rouge">config</code></a></td>
@@ -253,7 +268,7 @@ reports), so it is safe to pipe.</p>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code></td>
-      <td>The author’s Ed25519 seed, 64 hex characters.</td>
+      <td>The author’s Ed25519 seed, 64 hex characters. When unset, <code class="language-plaintext highlighter-rouge">ik</code> signs with the OS keychain key (<code class="language-plaintext highlighter-rouge">ik keygen --keychain</code>), if any.</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">IK_CACHE_DIR</code></td>
@@ -266,7 +281,7 @@ reports), so it is safe to pipe.</p>
 <code class="language-plaintext highlighter-rouge">ik config --set-archive-path</code>).</p>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">keygen</code> and <code class="language-plaintext highlighter-rouge">config</code> need neither variable.</li>
+  <li><code class="language-plaintext highlighter-rouge">keygen</code>, <code class="language-plaintext highlighter-rouge">key_show</code>, <code class="language-plaintext highlighter-rouge">key_backup</code>, <code class="language-plaintext highlighter-rouge">key_restore</code> and <code class="language-plaintext highlighter-rouge">config</code> need no archive.</li>
   <li><code class="language-plaintext highlighter-rouge">read</code>, <code class="language-plaintext highlighter-rouge">export</code>, <code class="language-plaintext highlighter-rouge">manifest</code>, <code class="language-plaintext highlighter-rouge">verify</code> and <code class="language-plaintext highlighter-rouge">fsck</code> need only
 <code class="language-plaintext highlighter-rouge">IK_ARCHIVE_PATH</code>; without a key the archive is opened read-only (and
 <code class="language-plaintext highlighter-rouge">manifest</code> lists no author).</li>
@@ -290,7 +305,7 @@ reports), so it is safe to pipe.</p>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">1</code></td>
-      <td>The command failed: integrity, unknown item, authorship, archive rule, invalid key. One line <code class="language-plaintext highlighter-rouge">ik: error: &lt;message&gt;</code> on stderr, no traceback (<code class="language-plaintext highlighter-rouge">--logging-level DEBUG</code> adds it).</td>
+      <td>The command failed: integrity, unknown item, authorship, archive rule, archive locked by another writer (after 10 s), invalid key. One line <code class="language-plaintext highlighter-rouge">ik: error: &lt;message&gt;</code> on stderr, no traceback (<code class="language-plaintext highlighter-rouge">--logging-level DEBUG</code> adds it).</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">2</code></td>
@@ -322,8 +337,12 @@ the key itself is never printed. The messages are those of the SDK errors
       <td>Store the seed in the <code class="language-plaintext highlighter-rouge">--dot-env</code> file (mode <code class="language-plaintext highlighter-rouge">600</code>) instead of printing it.</td>
     </tr>
     <tr>
+      <td><code class="language-plaintext highlighter-rouge">--keychain</code></td>
+      <td>Store the seed in the OS keychain (shared with every program built on <code class="language-plaintext highlighter-rouge">indiek</code>) instead of printing it. Exclusive with <code class="language-plaintext highlighter-rouge">--write</code>.</td>
+    </tr>
+    <tr>
       <td><code class="language-plaintext highlighter-rouge">--force</code></td>
-      <td>With <code class="language-plaintext highlighter-rouge">--write</code>, replace a key already in that file. The old key is lost.</td>
+      <td>With <code class="language-plaintext highlighter-rouge">--write</code> / <code class="language-plaintext highlighter-rouge">--keychain</code>, replace a key already stored there. The old key is lost.</td>
     </tr>
   </tbody>
 </table>
@@ -335,7 +354,28 @@ names the file and the public key. If the file already holds a key and
 signing identity: back it up privately, never share it.</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ik <span class="nt">--dot-env</span> .env keygen <span class="nt">--write</span>
+ik keygen <span class="nt">--keychain</span>
 </code></pre></div></div>
+
+<h2 id="ik-key_show"><code class="language-plaintext highlighter-rouge">ik key_show</code></h2>
+
+<p>Prints the public key that signs writes and where it comes from
+(<code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code> or the OS keychain). Exits 1 with <code class="language-plaintext highlighter-rouge">No author key</code>
+when there is none. Never prints the seed.</p>
+
+<h2 id="ik-key_backup"><code class="language-plaintext highlighter-rouge">ik key_backup</code></h2>
+
+<p><code class="language-plaintext highlighter-rouge">ik key_backup --out FILE</code> writes a password-encrypted backup of the signing
+key (see <a href="/docs/sdk/#keys-in-the-os-keychain">Keys in the OS keychain</a>). The password is
+asked twice on the terminal (never a flag, so it stays out of shell history)
+and needs at least 12 characters. The file is created with mode <code class="language-plaintext highlighter-rouge">600</code>; an
+existing file is never overwritten. Keep the file and the password apart.</p>
+
+<h2 id="ik-key_restore"><code class="language-plaintext highlighter-rouge">ik key_restore</code></h2>
+
+<p><code class="language-plaintext highlighter-rouge">ik key_restore FILE</code> asks for the backup password and restores the key:
+printed as <code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY=&lt;seed&gt;</code> by default, or stored with <code class="language-plaintext highlighter-rouge">--write</code>
+(dotenv file) or <code class="language-plaintext highlighter-rouge">--keychain</code>; <code class="language-plaintext highlighter-rouge">--force</code> replaces a key already stored there.</p>
 
 <h2 id="ik-config"><code class="language-plaintext highlighter-rouge">ik config</code></h2>
 
@@ -411,8 +451,8 @@ setting, then <code class="language-plaintext highlighter-rouge">IK_ARCHIVE_PATH
 
 <ul>
   <li><strong>managed</strong>: if <code class="language-plaintext highlighter-rouge">--content</code> names an existing file, the file is read — text
-for <code class="language-plaintext highlighter-rouge">.txt</code>/<code class="language-plaintext highlighter-rouge">.md</code>, bytes for <code class="language-plaintext highlighter-rouge">.png</code>, <code class="language-plaintext highlighter-rouge">.jpg</code>, <code class="language-plaintext highlighter-rouge">.tif</code>/<code class="language-plaintext highlighter-rouge">.tiff</code> — with the media
-type detected from its name; any other file fails with
+for <code class="language-plaintext highlighter-rouge">.txt</code>/<code class="language-plaintext highlighter-rouge">.md</code>, bytes for <code class="language-plaintext highlighter-rouge">.png</code>, <code class="language-plaintext highlighter-rouge">.jpg</code>, <code class="language-plaintext highlighter-rouge">.tif</code>/<code class="language-plaintext highlighter-rouge">.tiff</code> and <code class="language-plaintext highlighter-rouge">.pdf</code> — with
+the media type detected from its name; any other file fails with
 <code class="language-plaintext highlighter-rouge">Unsupported archival media type for &lt;path&gt;</code> and nothing is written.
 Otherwise <code class="language-plaintext highlighter-rouge">--content</code> is stored as <code class="language-plaintext highlighter-rouge">text/plain</code>. <code class="language-plaintext highlighter-rouge">--media-type</code> is ignored
 for managed nodes. Missing <code class="language-plaintext highlighter-rouge">--content</code> exits 2.</li>
@@ -458,8 +498,8 @@ ik create_node <span class="nt">--resource-type</span> local_file <span class="n
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">--content</code></td>
-      <td>yes</td>
-      <td>Edge text, stored verbatim as <code class="language-plaintext highlighter-rouge">text/plain</code> (a file path is not read).</td>
+      <td>no</td>
+      <td>Edge text, stored verbatim as <code class="language-plaintext highlighter-rouge">text/plain</code> (a file path is not read). Omit it for an edge without content.</td>
     </tr>
   </tbody>
 </table>
@@ -470,6 +510,7 @@ written (<code class="language-plaintext highlighter-rouge">Unknown ID or alias 
 <code class="language-plaintext highlighter-rouge">e{n}</code> alias.</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ik create_edge <span class="nt">--source-node</span> e2 <span class="nt">--target-node</span> e1 <span class="nt">--content</span> <span class="s2">"states"</span>
+ik create_edge <span class="nt">--source-node</span> e2 <span class="nt">--target-node</span> e1   <span class="c"># no content</span>
 </code></pre></div></div>
 
 <h2 id="ik-supersede_node"><code class="language-plaintext highlighter-rouge">ik supersede_node</code></h2>
@@ -529,8 +570,8 @@ written (<code class="language-plaintext highlighter-rouge">Unknown ID or alias 
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">--content</code></td>
-      <td>yes</td>
-      <td>Replacement text (<code class="language-plaintext highlighter-rouge">text/plain</code>).</td>
+      <td>no</td>
+      <td>Replacement text (<code class="language-plaintext highlighter-rouge">text/plain</code>); omit it to remove the edge’s content.</td>
     </tr>
   </tbody>
 </table>
@@ -657,8 +698,8 @@ source/target and underlying ID. Missing values show as <code class="language-pl
   </tbody>
 </table>
 
-<p>Each element carries <code class="language-plaintext highlighter-rouge">author</code>, <code class="language-plaintext highlighter-rouge">timestamp</code>, <code class="language-plaintext highlighter-rouge">blob_hash</code> and, for
-<code class="language-plaintext highlighter-rouge">text/plain</code> content, a <code class="language-plaintext highlighter-rouge">label</code>. See <a href="#known-limitations">Known limitations</a>.</p>
+<p>Each element carries <code class="language-plaintext highlighter-rouge">author</code>, <code class="language-plaintext highlighter-rouge">timestamp</code>, <code class="language-plaintext highlighter-rouge">blob_hash</code> (absent for an edge
+without content) and, for <code class="language-plaintext highlighter-rouge">text/plain</code> content, a <code class="language-plaintext highlighter-rouge">label</code>. See <a href="#known-limitations">Known limitations</a>.</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ik <span class="nb">export</span> <span class="nt">--output-path</span> theorems.graphml <span class="nt">--tags</span> m1,m4
 </code></pre></div></div>
@@ -844,7 +885,11 @@ into the index. Every event names its algorithms (<code class="language-plaintex
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">Unsupported format version …</code></td>
-      <td>An event or seal is not format <code class="language-plaintext highlighter-rouge">3.0</code>.</td>
+      <td>An event is not format <code class="language-plaintext highlighter-rouge">3.0</code> or <code class="language-plaintext highlighter-rouge">3.1</code>, or a seal is not <code class="language-plaintext highlighter-rouge">3.0</code>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Invalid resource type 'none': …</code></td>
+      <td>A content-less body is not an edge, is not in a <code class="language-plaintext highlighter-rouge">3.1</code> event, or has a resource field set.</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">Unsupported algorithm …</code></td>
@@ -1015,14 +1060,19 @@ re-hash them all.</p>
 
 <ul>
   <li><strong>One writer per history.</strong> Each log is a single chain. Two copies extended
-independently cannot be merged (<code class="language-plaintext highlighter-rouge">Chain broken!</code>), and there is no lock
-against two local processes writing at the same moment.</li>
+independently cannot be merged (<code class="language-plaintext highlighter-rouge">Chain broken!</code>). Processes writing to the
+same folder on one machine are serialised by <code class="language-plaintext highlighter-rouge">.ik.lock</code> (see
+<a href="/docs/sdk/#archiveopen"><code class="language-plaintext highlighter-rouge">Archive.open</code></a>); on network drives (NFS, SMB) that lock may
+not be honoured.</li>
   <li><strong>Clock changes.</strong> Events are filed by their UTC date; writing after the
 system clock moved back across midnight breaks the chain.</li>
   <li><strong><code class="language-plaintext highlighter-rouge">local_file</code> paths</strong> are absolute paths of the writer’s machine.</li>
   <li><strong>CLI <code class="language-plaintext highlighter-rouge">--media-type</code></strong> is ignored for managed nodes (detected from the
-file name, or <code class="language-plaintext highlighter-rouge">text/plain</code>). PDF/A content can only be added from the SDK
-(<code class="language-plaintext highlighter-rouge">media_type=MediaType.APPLICATION_PDF_A</code>).</li>
+file name, or <code class="language-plaintext highlighter-rouge">text/plain</code>).</li>
+  <li><strong>PDF/A is not checked.</strong> A <code class="language-plaintext highlighter-rouge">.pdf</code> file is recorded as
+<code class="language-plaintext highlighter-rouge">application/pdf; profile=pdfa</code> without inspecting it: PDF/A shares the
+<code class="language-plaintext highlighter-rouge">application/pdf</code> media type, so the type is the writer’s claim. Convert
+ordinary PDFs to PDF/A before adding them.</li>
   <li><strong><code class="language-plaintext highlighter-rouge">export</code></strong> ignores supersedes (it shows original content), may keep an
 edge whose endpoint was filtered out, labels only <code class="language-plaintext highlighter-rouge">text/plain</code> content, and
 <code class="language-plaintext highlighter-rouge">--tags</code> fails with a <code class="language-plaintext highlighter-rouge">KeyError</code> on an archive whose base log holds a
