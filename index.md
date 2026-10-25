@@ -136,7 +136,8 @@ print(reader.fsck().blob_files)
 
 The format specification and the `indiek` package are free and open source
 under the Apache License 2.0. Read [the vision](/docs/mission/), then
-[get started](/docs/intro/).
+[get started](/docs/intro/). If IndieK is useful to you,
+[support it](/docs/support/).
 
 </div>
 </section>

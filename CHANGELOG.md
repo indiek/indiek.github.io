@@ -2,6 +2,12 @@
 
 All notable changes to the indiek.org website are documented here.
 
+## 2026-10-25 — donation instructions
+
+### Added
+- `docs/support.md`: "Support IndieK" page with GitHub Sponsors (`indiek` org) and Ko-fi (`indiek_sponsoring`) links; badges self-hosted in `assets/img/` so no third-party requests are made.
+- Navigation: "Support" in the top bar and "Support IndieK" in the sidebar's Project section; home page Status section links to it.
+
 ## 2026-10-25 — documentation for indiek 1.3.0 and format 3.1
 
 ### Changed

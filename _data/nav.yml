@@ -12,6 +12,8 @@ main:
     url: /docs/format/
   - title: Examples
     url: /docs/examples/
+  - title: Support
+    url: /docs/support/
 
 docs:
   - section: Overview
@@ -36,3 +38,5 @@ docs:
         url: /docs/contributing/
       - title: License
         url: /docs/license/
+      - title: Support IndieK
+        url: /docs/support/
