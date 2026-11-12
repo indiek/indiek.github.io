@@ -28,6 +28,8 @@
                 
                 <a href="/docs/intro/" class="active" aria-current="page">Get started</a>
                 
+                <a href="/docs/desktop/" >Desktop app</a>
+                
                 <a href="/docs/sdk/" >SDK</a>
                 
                 <a href="/docs/cli/" >CLI</a>
@@ -55,6 +57,17 @@
                 
                 <li><a href="/docs/examples/" >Examples</a></li>
                 
+                <li><a href="/docs/architecture/" >Architecture</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Apps</p>
+            <ul>
+                
+                <li><a href="/docs/desktop/" >IndieK Desktop</a></li>
+                
+                <li><a href="/docs/web-ui/" >Web UI guide</a></li>
+                
             </ul>
             
             <p class="sidebar-section">Reference</p>
@@ -63,6 +76,8 @@
                 <li><a href="/docs/sdk/" >Python SDK</a></li>
                 
                 <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/api/" >Local API</a></li>
                 
                 <li><a href="/docs/format/" >Format specification</a></li>
                 
@@ -88,9 +103,24 @@ explains the handful of concepts behind it. For the <em>why</em>, read the
 <a href="/docs/mission/">vision</a>; for every detail, the <a href="/docs/sdk/">SDK</a> and
 <a href="/docs/cli/">CLI</a> references.</p>
 
+<h2 id="two-ways-in">Two ways in</h2>
+
+<ul>
+  <li><strong>With the desktop app</strong>, no programming needed: install
+<a href="/docs/desktop/">IndieK Desktop</a>, create your author key when it asks,
+open or create an archive folder, and use the
+<a href="/docs/web-ui/">graph explorer</a>. The <a href="#concepts">concepts</a> below apply
+just the same.</li>
+  <li><strong>With Python or the shell</strong>: install the <code class="language-plaintext highlighter-rouge">indiek</code> package and follow
+this page.</li>
+</ul>
+
+<p>Both write the same archives, so you can switch between them at any time
+(<a href="/docs/architecture/">how the pieces fit</a>).</p>
+
 <h2 id="install">Install</h2>
 
-<p>IndieK needs Python 3.14 or newer. The <code class="language-plaintext highlighter-rouge">indiek</code> package contains both the
+<p>The <code class="language-plaintext highlighter-rouge">indiek</code> package needs Python 3.14 or newer. The <code class="language-plaintext highlighter-rouge">indiek</code> package contains both the
 Python SDK and the <code class="language-plaintext highlighter-rouge">ik</code> command-line tool. It is <a href="https://github.com/indiek/indiek">hosted on GitHub</a> and <a href="https://pypi.org/project/indiek/">distributed through PyPI</a>.</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uv tool <span class="nb">install</span> <span class="s1">'indiek[cli]'</span>   <span class="c"># the ik command</span>
@@ -265,9 +295,12 @@ generations, transcriptions carry an archive’s chain of custody forward.</p>
 <h2 id="where-to-go-next">Where to go next</h2>
 
 <ul>
+  <li><a href="/docs/desktop/">IndieK Desktop</a> and the <a href="/docs/web-ui/">web UI guide</a> —
+the same, with a graphical interface.</li>
   <li><a href="/docs/examples/">Examples</a> — research notebooks, two-author debates,
 publishing and checking archives, reading an archive without IndieK.</li>
   <li><a href="/docs/sdk/">Python SDK reference</a> and <a href="/docs/cli/"><code class="language-plaintext highlighter-rouge">ik</code> CLI reference</a>.</li>
+  <li><a href="/docs/api/">Local API</a> — to build your own interface.</li>
   <li><a href="/docs/format/">Format specification</a> — for implementers.</li>
 </ul>
 

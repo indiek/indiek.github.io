@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Architecture — IndieK</title>
+    <meta name="description" content="How the IndieK pieces fit together: the indiek SDK and ik CLI, the local API, the web UI and the IndieK Desktop App.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/site.js"></script>
+    
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="1a61fc2b-ae27-4e34-b9f3-668d65e0036b"></script>
+    
+</head>
+
+<body class="is-doc">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">◆</span> IndieK
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show navigation">
+            <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">☰</label>
+            <nav class="topnav" aria-label="Main">
+                
+                <a href="/docs/mission/" >Vision</a>
+                
+                <a href="/docs/intro/" >Get started</a>
+                
+                <a href="/docs/desktop/" >Desktop app</a>
+                
+                <a href="/docs/sdk/" >SDK</a>
+                
+                <a href="/docs/cli/" >CLI</a>
+                
+                <a href="/docs/format/" >Format</a>
+                
+                <a href="/docs/examples/" >Examples</a>
+                
+                <a href="/docs/support/" >Support</a>
+                
+            </nav>
+        </div>
+    </header>
+
+    
+    <div class="layout">
+        <aside class="sidebar" aria-label="Documentation">
+            
+            <p class="sidebar-section">Overview</p>
+            <ul>
+                
+                <li><a href="/docs/mission/" >Vision</a></li>
+                
+                <li><a href="/docs/intro/" >Get started</a></li>
+                
+                <li><a href="/docs/examples/" >Examples</a></li>
+                
+                <li><a href="/docs/architecture/" class="active" aria-current="page">Architecture</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Apps</p>
+            <ul>
+                
+                <li><a href="/docs/desktop/" >IndieK Desktop</a></li>
+                
+                <li><a href="/docs/web-ui/" >Web UI guide</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Reference</p>
+            <ul>
+                
+                <li><a href="/docs/sdk/" >Python SDK</a></li>
+                
+                <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/api/" >Local API</a></li>
+                
+                <li><a href="/docs/format/" >Format specification</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Project</p>
+            <ul>
+                
+                <li><a href="/docs/contributing/" >Contributing</a></li>
+                
+                <li><a href="/docs/license/" >License</a></li>
+                
+                <li><a href="/docs/support/" >Support IndieK</a></li>
+                
+            </ul>
+            
+        </aside>
+        <main class="content" id="content">
+            <h1 id="architecture">Architecture</h1>
+
+<p>IndieK is one format and four pieces of free software built on it. Each
+piece is useful on its own, and each builds on the one below it:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──────────────────────────────────────────────────────────────────────┐
+│ IndieK Desktop App (Tauri)  — one installer for macOS, Windows, Linux │
+│   ┌──────────────────────────────┐   ┌─────────────────────────────┐ │
+│   │ window: the web UI           │──►│ sidecar: local API + ik CLI │ │
+│   │ (graph explorer)             │   │ (127.0.0.1 only)            │ │
+│   └──────────────────────────────┘   └──────────────┬──────────────┘ │
+└─────────────────────────────────────────────────────┼────────────────┘
+                                                      ▼
+                                   indiek SDK ──► archive folder on disk
+                                                  (often a git repository)
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Piece</th>
+      <th>What it is</th>
+      <th>For whom</th>
+      <th>Where it is published</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong><code class="language-plaintext highlighter-rouge">indiek</code></strong></td>
+      <td>The Python SDK and the <code class="language-plaintext highlighter-rouge">ik</code> command line; the reference implementation of the <a href="/docs/format/">format</a></td>
+      <td>Python developers, command-line users</td>
+      <td><a href="https://pypi.org/project/indiek/">PyPI</a> · <a href="https://github.com/indiek/indiek">GitHub</a></td>
+    </tr>
+    <tr>
+      <td><strong><code class="language-plaintext highlighter-rouge">indiek-api</code></strong></td>
+      <td>The <a href="/docs/api/">local API</a>: an HTTP server on your own computer that opens archives with the SDK and serves the web UI</td>
+      <td>The desktop app; developers building their own interface</td>
+      <td><a href="https://pypi.org/project/indiek-api/">PyPI</a> · <a href="https://github.com/indiek/indiek-api">GitHub</a></td>
+    </tr>
+    <tr>
+      <td><strong>Web UI</strong></td>
+      <td>The <a href="/docs/web-ui/">graph explorer</a>: browse, filter and write a knowledge graph in a browser window</td>
+      <td>Everyone</td>
+      <td><a href="https://github.com/indiek/indiek-webui/releases">GitHub Releases</a> (a built bundle)</td>
+    </tr>
+    <tr>
+      <td><strong>IndieK Desktop</strong></td>
+      <td>The <a href="/docs/desktop/">desktop app</a>: the API, the web UI and the <code class="language-plaintext highlighter-rouge">ik</code> command in one installer, with no Python or Node.js to install</td>
+      <td>Everyone</td>
+      <td><a href="https://github.com/indiek/indiek-desktop/releases">GitHub Releases</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>All four are licensed under the <a href="/docs/license/">Apache License 2.0</a>.</p>
+
+<h2 id="the-archive-is-the-source-of-truth">The archive is the source of truth</h2>
+
+<p>Every piece reads and writes the same thing: an archive folder, through the
+<code class="language-plaintext highlighter-rouge">indiek</code> SDK. None of them keeps a database or a copy of your data of its
+own. Caches and indexes can be deleted at any time, since they are rebuilt from
+the signed logs.</p>
+
+<p>So the tools are interchangeable. You can write a node in the desktop app,
+supersede it with <code class="language-plaintext highlighter-rouge">ik</code>, pull a collaborator’s changes with <code class="language-plaintext highlighter-rouge">git</code>, and the
+app shows the result. It re-verifies the archive whenever its logs change
+on disk, whoever changed them.</p>
+
+<h2 id="how-the-desktop-app-runs">How the desktop app runs</h2>
+
+<ol>
+  <li>You start IndieK. The window shows “Starting the local IndieK server…”.</li>
+  <li>The app starts its <strong>sidecar</strong>, one bundled program that contains the
+local API and the <code class="language-plaintext highlighter-rouge">ik</code> command line. The sidecar listens on <code class="language-plaintext highlighter-rouge">127.0.0.1</code>
+only, on a random free port.</li>
+  <li>The sidecar sends the app, privately through a pipe, a single-use
+<strong>launch link</strong>. The window opens it and is logged in; nobody else can
+reuse the link.</li>
+  <li>The window shows the web UI, served by the sidecar. Every action in the
+UI is an HTTP call to the sidecar, which performs it with the SDK.</li>
+  <li>When you quit, the app closes the pipe and the sidecar stops. If the app
+crashes, the operating system closes the pipe and the sidecar stops too:
+no server is left running in the background.</li>
+</ol>
+
+<p>The page in the window gets no special access to your computer. It talks
+only to the local API, and the window may only navigate to the local server.</p>
+
+<h2 id="local-and-offline">Local and offline</h2>
+
+<ul>
+  <li>Everything runs on your computer. The API refuses connections from the
+network and requests addressed to any host name other than the local one.</li>
+  <li>No account, no sign-in, no cloud service: the app works without an
+internet connection.</li>
+  <li>Your archives stay where they are. The app edits archive folders <strong>in
+place</strong> and only remembers <em>which</em> folders you opened (in
+<code class="language-plaintext highlighter-rouge">~/.indiek/workspaces.json</code>). Removing one from the list never touches
+its files.</li>
+</ul>
+
+<h2 id="one-signing-key-for-every-tool">One signing key for every tool</h2>
+
+<p>Writes are signed with your author key (an Ed25519 key pair; see
+<a href="/docs/intro/#authors-and-signatures">authors and signatures</a>). The desktop
+app keeps it in your operating system’s keychain, in the item with service
+<code class="language-plaintext highlighter-rouge">indiek</code> and account <code class="language-plaintext highlighter-rouge">author-seed</code>, the same item <code class="language-plaintext highlighter-rouge">ik keygen --keychain</code> uses.
+A key created in the app therefore also works with <code class="language-plaintext highlighter-rouge">ik</code>, and the other way
+round.</p>
+
+<p>The app’s <strong>Install ik Command…</strong> menu item puts the bundled <code class="language-plaintext highlighter-rouge">ik</code> on your
+command line. It is the same program as the app, so the keychain does not
+ask again for permission.</p>
+
+<p>The secret key never reaches the web page. The API signs on its behalf, and
+key backups are encrypted with your password before they leave the API.</p>
+
+<h2 id="versions-and-releases">Versions and releases</h2>
+
+<p>Each piece has its own repository, its own version number and its own
+changelog, so each can improve at its own pace. The desktop repository holds
+no component code. It <strong>pins</strong> an exact, tested release of each:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pinned in the desktop repository</th>
+      <th>Pins</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">pyproject.toml</code></td>
+      <td><code class="language-plaintext highlighter-rouge">indiek-api</code> and <code class="language-plaintext highlighter-rouge">indiek</code> (from PyPI)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">web-ui.lock.json</code></td>
+      <td>the web UI release, with the SHA-256 of its bundle</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>A new SDK, API or web UI release reaches users when the desktop app moves
+its pin and publishes a new release. Every desktop release states the
+versions it bundles in its changelog.</p>
+
+<p>Release outputs:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Piece</th>
+      <th>A release produces</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">indiek</code></td>
+      <td>a package on PyPI</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">indiek-api</code></td>
+      <td>a package on PyPI</td>
+    </tr>
+    <tr>
+      <td>Web UI</td>
+      <td><code class="language-plaintext highlighter-rouge">custom-graph-explorer-&lt;version&gt;-out.tar.gz</code> and its <code class="language-plaintext highlighter-rouge">.sha256</code>, attached to a GitHub Release</td>
+    </tr>
+    <tr>
+      <td>IndieK Desktop</td>
+      <td>installers for macOS (<code class="language-plaintext highlighter-rouge">.dmg</code>), Windows (<code class="language-plaintext highlighter-rouge">.msi</code>, <code class="language-plaintext highlighter-rouge">.exe</code>) and Linux (<code class="language-plaintext highlighter-rouge">.AppImage</code>, <code class="language-plaintext highlighter-rouge">.deb</code>), with <code class="language-plaintext highlighter-rouge">SHA256SUMS.txt</code>, attached to a GitHub Release</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="where-to-go-next">Where to go next</h2>
+
+<ul>
+  <li><a href="/docs/desktop/">IndieK Desktop</a>: install the app and start using it.</li>
+  <li><a href="/docs/web-ui/">Web UI guide</a>: everything the graph explorer can do.</li>
+  <li><a href="/docs/api/">Local API</a>: run the server yourself, its configuration,
+security model and routes.</li>
+  <li><a href="/docs/intro/">Get started</a>: the concepts, and the SDK and CLI.</li>
+  <li><a href="/docs/contributing/">Contributing</a>: how to work on any of the pieces.</li>
+</ul>
+
+        </main>
+        <aside class="toc" aria-label="On this page">
+            <p class="toc-title">On this page</p>
+            <nav id="toc"></nav>
+        </aside>
+    </div>
+    
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>IndieK — an open archival format for knowledge graphs.</span>
+            <span>Specification, <code>indiek</code> package and website: Apache-2.0 · <a href="/docs/license/">License</a></span>
+        </div>
+    </footer>
+</body>
+
+</html>

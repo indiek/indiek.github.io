@@ -28,6 +28,8 @@
                 
                 <a href="/docs/intro/" >Get started</a>
                 
+                <a href="/docs/desktop/" >Desktop app</a>
+                
                 <a href="/docs/sdk/" >SDK</a>
                 
                 <a href="/docs/cli/" >CLI</a>
@@ -55,6 +57,17 @@
                 
                 <li><a href="/docs/examples/" >Examples</a></li>
                 
+                <li><a href="/docs/architecture/" >Architecture</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Apps</p>
+            <ul>
+                
+                <li><a href="/docs/desktop/" >IndieK Desktop</a></li>
+                
+                <li><a href="/docs/web-ui/" >Web UI guide</a></li>
+                
             </ul>
             
             <p class="sidebar-section">Reference</p>
@@ -63,6 +76,8 @@
                 <li><a href="/docs/sdk/" >Python SDK</a></li>
                 
                 <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/api/" >Local API</a></li>
                 
                 <li><a href="/docs/format/" >Format specification</a></li>
                 
@@ -84,7 +99,9 @@
             <h1 id="contributing">Contributing</h1>
 
 <p>IndieK opens to external contributions on <strong>1 November 2026</strong>. This page describes how the project works, so you can get familiar with the
-code and the format; the channel for issues and contributions is this <a href="https://github.com/indiek/indiek">GitHub repo</a>.</p>
+code and the format. Issues and contributions go to the repository of the
+project concerned (table below); when in doubt, use the
+<a href="https://github.com/indiek/indiek"><code class="language-plaintext highlighter-rouge">indiek</code> repository</a>.</p>
 
 <h2 id="the-projects">The projects</h2>
 
@@ -93,22 +110,49 @@ code and the format; the channel for issues and contributions is this <a href="h
     <tr>
       <th>Project</th>
       <th>What it is</th>
+      <th>Stack</th>
       <th>License</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><code class="language-plaintext highlighter-rouge">indiek</code> (Python package)</td>
+      <td><a href="https://github.com/indiek/indiek"><code class="language-plaintext highlighter-rouge">indiek</code></a> (Python package)</td>
       <td>The SDK (<code class="language-plaintext highlighter-rouge">indiek</code>), the <code class="language-plaintext highlighter-rouge">ik</code> CLI, the normative specification (<code class="language-plaintext highlighter-rouge">src/indiek/spec/SPEC.md</code>) and its test vectors</td>
+      <td>Python, uv</td>
+      <td>Apache-2.0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/indiek/indiek-api"><code class="language-plaintext highlighter-rouge">indiek-api</code></a></td>
+      <td>The <a href="/docs/api/">local API</a></td>
+      <td>Python, FastAPI, uv</td>
+      <td>Apache-2.0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/indiek/indiek-webui"><code class="language-plaintext highlighter-rouge">indiek-webui</code></a></td>
+      <td>The <a href="/docs/web-ui/">web UI</a> (graph explorer)</td>
+      <td>TypeScript, Next.js (static export), React, Tailwind CSS, Cytoscape.js, Vitest</td>
+      <td>Apache-2.0</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/indiek/indiek-desktop"><code class="language-plaintext highlighter-rouge">indiek-desktop</code></a></td>
+      <td>The <a href="/docs/desktop/">desktop app</a>: a Tauri shell, the frozen sidecar (PyInstaller) and the installer builds; no component code, only pinned releases of the three above</td>
+      <td>Rust, Tauri 2, Python</td>
       <td>Apache-2.0</td>
     </tr>
     <tr>
       <td>indiek.org</td>
       <td>This website</td>
+      <td>Jekyll</td>
       <td>Apache-2.0</td>
     </tr>
   </tbody>
 </table>
+
+<p>How they depend on each other, and how releases flow from one to the next:
+<a href="/docs/architecture/">Architecture</a>. Each repository’s <code class="language-plaintext highlighter-rouge">README.md</code> explains
+its setup, code layout and tests in detail.</p>
+
+<h2 id="the-indiek-package">The <code class="language-plaintext highlighter-rouge">indiek</code> package</h2>
 
 <p>Inside the package:</p>
 
@@ -128,7 +172,9 @@ scripts/             test-vector generator and helpers
 
 <h2 id="development-workflow">Development workflow</h2>
 
-<p>The project uses <a href="https://docs.astral.sh/uv/">uv</a> for everything Python.</p>
+<p>The Python projects use <a href="https://docs.astral.sh/uv/">uv</a> exclusively.</p>
+
+<p><code class="language-plaintext highlighter-rouge">indiek</code>:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uv <span class="nb">sync</span>                                       <span class="c"># create the environment</span>
 uv run pytest                                 <span class="c"># the test suite</span>
@@ -138,6 +184,29 @@ uv run ruff format <span class="nt">--check</span> src tests scripts  <span clas
 uv run ik <span class="nt">--help</span>                              <span class="c"># the CLI from your working copy</span>
 </code></pre></div></div>
 
+<p><code class="language-plaintext highlighter-rouge">indiek-api</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uv <span class="nb">sync
+</span>uv run ruff check <span class="nb">.</span> <span class="o">&amp;&amp;</span> uv run ruff format <span class="nt">--check</span> <span class="nb">.</span> <span class="o">&amp;&amp;</span> uv run pytest
+uv run python <span class="nt">-m</span> indiek_api                   <span class="c"># the server from your working copy</span>
+uv run <span class="nt">--with-editable</span> ../indiek pytest       <span class="c"># against an unreleased indiek checkout</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">indiek-webui</code> (Node.js and npm):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install
+</span>npx tsc <span class="nt">--noEmit</span> <span class="o">&amp;&amp;</span> npm run lint <span class="o">&amp;&amp;</span> npm <span class="nb">test</span> <span class="o">&amp;&amp;</span> npm run build
+npm run dev                                   <span class="c"># hot reload; proxies /api/* to a running indiek-api</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">indiek-desktop</code> (Rust, Node.js, uv):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install</span> <span class="o">&amp;&amp;</span> uv <span class="nb">sync</span> <span class="o">&amp;&amp;</span> uv run pytest
+<span class="nb">cd </span>src-tauri <span class="o">&amp;&amp;</span> cargo <span class="nb">fmt</span> <span class="nt">--check</span> <span class="o">&amp;&amp;</span> cargo clippy <span class="nt">--all-targets</span> <span class="o">&amp;&amp;</span> cargo <span class="nb">test</span>
+</code></pre></div></div>
+
+<p>Every repository runs these checks in GitHub Actions on each push.</p>
+
 <h2 id="rules-for-every-change">Rules for every change</h2>
 
 <ul>
@@ -145,12 +214,20 @@ uv run ik <span class="nt">--help</span>                              <span clas
 suite must stay green, lint and formatting clean.</li>
   <li><strong>A changelog entry</strong> in <code class="language-plaintext highlighter-rouge">CHANGELOG.md</code>, in the section of the upcoming
 release.</li>
-  <li><strong>Versioning.</strong> The package follows semantic versioning: a new feature
-bumps the minor version, a fix the patch version.</li>
-  <li><strong>Small, focused changes</strong>, with modern, fully typed Python.</li>
-  <li><strong>The README examples are executed by the tests</strong>: keep them runnable.</li>
-  <li><strong>The SDK never imports CLI dependencies</strong> (<code class="language-plaintext highlighter-rouge">rich</code>, <code class="language-plaintext highlighter-rouge">python-dotenv</code>); a
-test enforces it.</li>
+  <li><strong>Versioning.</strong> Every project follows semantic versioning: a new feature
+bumps the minor version, a fix the patch version. Release tags are the
+bare version (<code class="language-plaintext highlighter-rouge">1.4.0</code>, no <code class="language-plaintext highlighter-rouge">v</code>) and must equal the version in the project’s
+metadata.</li>
+  <li><strong>Small, focused changes</strong>, with modern, fully typed code (strict type
+hints in Python, strict TypeScript).</li>
+  <li><strong>The API and the web UI change together.</strong> The web UI mirrors the API’s
+contract in <code class="language-plaintext highlighter-rouge">src/lib/types.ts</code> and <code class="language-plaintext highlighter-rouge">src/lib/api.ts</code>; a route change
+updates both sides and their tests.</li>
+  <li><strong>The API never listens beyond <code class="language-plaintext highlighter-rouge">127.0.0.1</code></strong> and never logs or returns a
+secret.</li>
+  <li>In the <code class="language-plaintext highlighter-rouge">indiek</code> package: <strong>the README examples are executed by the
+tests</strong> (keep them runnable), and <strong>the SDK never imports CLI
+dependencies</strong> (<code class="language-plaintext highlighter-rouge">rich</code>, <code class="language-plaintext highlighter-rouge">python-dotenv</code>); a test enforces it.</li>
 </ul>
 
 <h2 id="changing-the-format">Changing the format</h2>

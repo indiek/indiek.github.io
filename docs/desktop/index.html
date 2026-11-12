@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>IndieK Desktop — IndieK</title>
+    <meta name="description" content="Install the IndieK Desktop App on macOS, Windows or Linux, open the first build despite the missing code signature, set up your author key and keep it safe.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/site.js"></script>
+    
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="1a61fc2b-ae27-4e34-b9f3-668d65e0036b"></script>
+    
+</head>
+
+<body class="is-doc">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">◆</span> IndieK
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show navigation">
+            <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">☰</label>
+            <nav class="topnav" aria-label="Main">
+                
+                <a href="/docs/mission/" >Vision</a>
+                
+                <a href="/docs/intro/" >Get started</a>
+                
+                <a href="/docs/desktop/" class="active" aria-current="page">Desktop app</a>
+                
+                <a href="/docs/sdk/" >SDK</a>
+                
+                <a href="/docs/cli/" >CLI</a>
+                
+                <a href="/docs/format/" >Format</a>
+                
+                <a href="/docs/examples/" >Examples</a>
+                
+                <a href="/docs/support/" >Support</a>
+                
+            </nav>
+        </div>
+    </header>
+
+    
+    <div class="layout">
+        <aside class="sidebar" aria-label="Documentation">
+            
+            <p class="sidebar-section">Overview</p>
+            <ul>
+                
+                <li><a href="/docs/mission/" >Vision</a></li>
+                
+                <li><a href="/docs/intro/" >Get started</a></li>
+                
+                <li><a href="/docs/examples/" >Examples</a></li>
+                
+                <li><a href="/docs/architecture/" >Architecture</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Apps</p>
+            <ul>
+                
+                <li><a href="/docs/desktop/" class="active" aria-current="page">IndieK Desktop</a></li>
+                
+                <li><a href="/docs/web-ui/" >Web UI guide</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Reference</p>
+            <ul>
+                
+                <li><a href="/docs/sdk/" >Python SDK</a></li>
+                
+                <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/api/" >Local API</a></li>
+                
+                <li><a href="/docs/format/" >Format specification</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Project</p>
+            <ul>
+                
+                <li><a href="/docs/contributing/" >Contributing</a></li>
+                
+                <li><a href="/docs/license/" >License</a></li>
+                
+                <li><a href="/docs/support/" >Support IndieK</a></li>
+                
+            </ul>
+            
+        </aside>
+        <main class="content" id="content">
+            <h1 id="indiek-desktop">IndieK Desktop</h1>
+
+<p>The IndieK Desktop App is the easiest way to use IndieK: one installer that
+contains the <a href="/docs/web-ui/">web UI</a>, the <a href="/docs/api/">local API</a> and the
+<code class="language-plaintext highlighter-rouge">ik</code> command line. You don’t need Python, Node.js or a terminal. It runs
+entirely on your computer and works offline
+(<a href="/docs/architecture/">how it works</a>).</p>
+
+<blockquote>
+  <p><strong>Status: the first release is coming soon.</strong> Until it is published on
+the <a href="https://github.com/indiek/indiek-desktop/releases">releases page</a>,
+you can run the app from source: see the
+<a href="https://github.com/indiek/indiek-desktop#run-from-source-development-mode">desktop repository’s README</a>.</p>
+</blockquote>
+
+<h2 id="download">Download</h2>
+
+<p>Download the installer for your system from the
+<a href="https://github.com/indiek/indiek-desktop/releases">releases page</a>. In the
+file names, <code class="language-plaintext highlighter-rouge">&lt;version&gt;</code> stands for the version number, for example <code class="language-plaintext highlighter-rouge">0.2.0</code>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>System</th>
+      <th>File</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>macOS, Apple silicon (M1 and later)</td>
+      <td><code class="language-plaintext highlighter-rouge">IndieK_&lt;version&gt;_aarch64.dmg</code></td>
+      <td>Intel Macs: not yet; use the <a href="/docs/intro/">Python package</a> meanwhile</td>
+    </tr>
+    <tr>
+      <td>Windows 10 and 11 (64-bit)</td>
+      <td><code class="language-plaintext highlighter-rouge">IndieK_&lt;version&gt;_x64-setup.exe</code> or <code class="language-plaintext highlighter-rouge">IndieK_&lt;version&gt;_x64_en-US.msi</code></td>
+      <td>Both install the same app; the <code class="language-plaintext highlighter-rouge">.exe</code> is the usual choice</td>
+    </tr>
+    <tr>
+      <td>Linux, 64-bit (Ubuntu 22.04 or newer, Debian 12 or newer)</td>
+      <td><code class="language-plaintext highlighter-rouge">IndieK_&lt;version&gt;_amd64.AppImage</code> or <code class="language-plaintext highlighter-rouge">IndieK_&lt;version&gt;_amd64.deb</code></td>
+      <td>The <code class="language-plaintext highlighter-rouge">.deb</code> for Debian and Ubuntu; the <code class="language-plaintext highlighter-rouge">.AppImage</code> runs on most other distributions</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Each release also lists <code class="language-plaintext highlighter-rouge">SHA256SUMS.txt</code>. To check that your download is
+intact, compare its SHA-256 with the line for your file:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>shasum <span class="nt">-a</span> 256 IndieK_<span class="k">*</span>.dmg                  <span class="c"># macOS</span>
+<span class="nb">sha256sum </span>IndieK_<span class="k">*</span>.AppImage                 <span class="c"># Linux</span>
+Get-FileHash IndieK_<span class="k">*</span><span class="nt">-setup</span>.exe             <span class="c"># Windows (PowerShell)</span>
+</code></pre></div></div>
+
+<h2 id="install">Install</h2>
+
+<h3 id="why-your-system-warns-you">Why your system warns you</h3>
+
+<p>The first releases are <strong>not code-signed</strong>. Code signing is a paid
+certificate from Apple and Microsoft that lets your system recognise the
+publisher, and it will come before IndieK’s wider launch. Until then,
+macOS and Windows warn you before the first launch and ask you to confirm
+that you trust the app. The steps below do exactly that, once. To make sure
+the file is the published one, compare its checksum (<a href="#download">Download</a>).</p>
+
+<h3 id="macos">macOS</h3>
+
+<ol>
+  <li>Open the <code class="language-plaintext highlighter-rouge">.dmg</code> and drag <strong>IndieK</strong> onto <strong>Applications</strong>.</li>
+  <li>Open IndieK from Applications. macOS refuses the first time with a message
+like <em>“IndieK” Not Opened: Apple could not verify “IndieK” is free of
+malware…</em>. Click <strong>Done</strong>.</li>
+  <li>Open <strong>System Settings → Privacy &amp; Security</strong> and scroll down to
+<strong>Security</strong>. Next to <em>“IndieK” was blocked to protect your Mac</em>, click
+<strong>Open Anyway</strong>, then confirm with your password or Touch ID.</li>
+  <li>Open IndieK again and click <strong>Open Anyway</strong> in the last dialog. macOS
+remembers your choice: later launches open directly.</li>
+</ol>
+
+<!-- TODO(owner): screenshots of steps 2, 3 and 4 on macOS 15. -->
+
+<p>On macOS 14 and older, step 2 offers <strong>Open</strong> after a right-click (or
+Control-click) on the app → <strong>Open</strong>.</p>
+
+<p>If macOS says <em>“IndieK” is damaged and can’t be opened</em>, the app is not
+damaged: macOS says this about some unsigned apps downloaded from the
+internet. Move IndieK to Applications, then run, once, in Terminal:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xattr <span class="nt">-dr</span> com.apple.quarantine /Applications/IndieK.app
+</code></pre></div></div>
+
+<p>The first launch after an install or update takes up to about 15 seconds
+while macOS checks the new files; later launches take about a second.</p>
+
+<h3 id="windows">Windows</h3>
+
+<ol>
+  <li>Run <code class="language-plaintext highlighter-rouge">IndieK_&lt;version&gt;_x64-setup.exe</code> (or the <code class="language-plaintext highlighter-rouge">.msi</code>).</li>
+  <li>If Windows shows <em>Windows protected your PC</em> (Microsoft Defender
+SmartScreen), click <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
+  <li>Follow the installer. IndieK appears in the Start menu.</li>
+</ol>
+
+<!-- TODO(owner): screenshot of the SmartScreen dialog after "More info". -->
+
+<p>The installer downloads Microsoft’s WebView2 runtime if your system lacks it
+(Windows 10 and 11 normally include it).</p>
+
+<h3 id="linux">Linux</h3>
+
+<p><strong>Debian, Ubuntu</strong> (<code class="language-plaintext highlighter-rouge">.deb</code>):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt <span class="nb">install</span> ./IndieK_&lt;version&gt;_amd64.deb
+</code></pre></div></div>
+
+<p>IndieK then appears among your applications.</p>
+
+<p><strong>AppImage</strong> (no installation): make the file executable and run it.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod</span> +x IndieK_&lt;version&gt;_amd64.AppImage
+./IndieK_&lt;version&gt;_amd64.AppImage
+</code></pre></div></div>
+
+<p>Some distributions need FUSE 2 for AppImages (on Ubuntu 22.04 and newer:
+<code class="language-plaintext highlighter-rouge">sudo apt install libfuse2</code>).</p>
+
+<h2 id="first-launch">First launch</h2>
+
+<p>A window opens with <em>Starting the local IndieK server…</em>, then shows the
+graph explorer’s home screen.</p>
+
+<h3 id="your-author-key">Your author key</h3>
+
+<p>To write to an archive, you need an <strong>author key</strong>: the Ed25519 key that
+signs everything you add (see
+<a href="/docs/intro/#authors-and-signatures">authors and signatures</a>). Without one,
+you can open and read every archive, but not write.</p>
+
+<p>On the first launch, the <strong>Author key</strong> dialog opens by itself. You can
+reopen it at any time from the key chip in the header. Choose one of:</p>
+
+<ul>
+  <li><strong>Create a new key.</strong> The app creates the key, stores it in your system’s
+keychain and immediately offers an <strong>encrypted backup</strong>: choose a password
+of at least 12 characters and keep the downloaded <code class="language-plaintext highlighter-rouge">.ikkey</code> file
+somewhere safe, away from your computer.</li>
+  <li><strong>Import a key</strong>, either from an encrypted backup (<code class="language-plaintext highlighter-rouge">.ikkey</code> file plus its
+password) or as the 64-character hexadecimal secret, for example the
+<code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code> from a <code class="language-plaintext highlighter-rouge">.env</code> file used with <code class="language-plaintext highlighter-rouge">ik</code>.</li>
+</ul>
+
+<blockquote>
+  <p><strong>Your key is your identity.</strong> Everything you write is signed with it.
+If you lose the key and its backup, you can still read your archives, but
+you can no longer revise or tag what you wrote under that identity.
+Nobody, not even the IndieK developers, can recover it.</p>
+</blockquote>
+
+<p>The header chip shows where the key comes from: <code class="language-plaintext highlighter-rouge">keychain</code>, or <code class="language-plaintext highlighter-rouge">env</code> when
+the variable <code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code> is set in the app’s environment (it
+then takes precedence over the keychain).</p>
+
+<h3 id="keychain-prompts-on-macos">Keychain prompts on macOS</h3>
+
+<p>The first time the app reads your key, macOS asks whether
+<em>indiek-sidecar</em> may use the item <em>indiek</em> in your keychain. Enter your
+password and click <strong>Always Allow</strong>. <strong>Allow</strong> works too, but macOS then
+asks again at each launch, sometimes twice.</p>
+
+<p>Because the first releases are unsigned, macOS asks again after each update
+of the app.</p>
+
+<!-- TODO(owner): screenshot of the keychain prompt. -->
+
+<p>On Windows the key is kept in the <strong>Credential Manager</strong>, on Linux in the
+<strong>Secret Service</strong> keyring (GNOME Keyring, KWallet), usually without
+prompts. A Linux system without a Secret Service keyring cannot store the
+key: set <code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code> in the environment instead.</p>
+
+<h2 id="open-or-create-an-archive">Open or create an archive</h2>
+
+<p>On the home screen, type the <strong>absolute path</strong> of a folder and click:</p>
+
+<ul>
+  <li><strong>Open workspace</strong>, for an existing archive. The path may be the archive
+folder itself, or a folder (for example a git repository) that contains
+exactly one archive; if it contains several, the app lists them for you to
+pick.</li>
+  <li><strong>New archive</strong>, to start an archive in a new or empty folder.</li>
+</ul>
+
+<p>The app edits the archive <strong>in place</strong>: no copy, no import. It remembers the
+folders you opened (in <code class="language-plaintext highlighter-rouge">~/.indiek/workspaces.json</code>) and lists them on the
+home screen. Removing one from the list never deletes its files.</p>
+
+<p>The archive’s files stay readable by every other tool: <code class="language-plaintext highlighter-rouge">ik</code>, the Python
+SDK, <code class="language-plaintext highlighter-rouge">git</code>, a text editor. If you change an archive outside the app (for
+example with <code class="language-plaintext highlighter-rouge">git pull</code>), the app verifies it again and shows the new state.</p>
+
+<p>From there, the <a href="/docs/web-ui/">web UI guide</a> explains everything you can do
+with the graph.</p>
+
+<h2 id="the-ik-command-line">The <code class="language-plaintext highlighter-rouge">ik</code> command line</h2>
+
+<p>The app contains the full <code class="language-plaintext highlighter-rouge">ik</code> command line (<a href="/docs/cli/">reference</a>). To use
+it in a terminal on <strong>macOS or Linux</strong>, choose <strong>Install ik Command…</strong> in the
+app menu (on macOS: <strong>IndieK → Install ik Command…</strong>).</p>
+
+<ul>
+  <li>It writes <code class="language-plaintext highlighter-rouge">~/.local/bin/ik</code>, a two-line launcher for the app’s bundled
+<code class="language-plaintext highlighter-rouge">ik</code>. No administrator password is needed.</li>
+  <li>If <code class="language-plaintext highlighter-rouge">~/.local/bin</code> is not on your <code class="language-plaintext highlighter-rouge">PATH</code>, the dialog says so; add
+<code class="language-plaintext highlighter-rouge">export PATH="$HOME/.local/bin:$PATH"</code> to <code class="language-plaintext highlighter-rouge">~/.zshrc</code> (or your shell’s
+profile).</li>
+  <li>If an <code class="language-plaintext highlighter-rouge">ik</code> you installed yourself already exists there (for example with
+<code class="language-plaintext highlighter-rouge">uv tool install indiek</code>), the app asks before replacing it.</li>
+  <li>The bundled <code class="language-plaintext highlighter-rouge">ik</code> is the same program as the app, so it signs with the same
+keychain key without further keychain prompts.</li>
+  <li>After moving the app, choose the menu item again.</li>
+</ul>
+
+<p>Not available on Windows yet: there, install <code class="language-plaintext highlighter-rouge">ik</code> with
+<code class="language-plaintext highlighter-rouge">uv tool install 'indiek[cli]'</code> (<a href="/docs/intro/#install">Get started</a>).</p>
+
+<h2 id="keep-your-key-safe">Keep your key safe</h2>
+
+<h3 id="back-up">Back up</h3>
+
+<p>In the app: <strong>Author key → Back up</strong>. On the command line:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ik key_backup <span class="nt">--out</span> ~/indiek-key.ikkey   <span class="c"># asks for a password (12+ characters)</span>
+</code></pre></div></div>
+
+<p>The backup is encrypted with your password (Argon2id). Keep it, and its
+password, away from your computer: a USB key, a password manager.</p>
+
+<h3 id="where-the-key-is-stored">Where the key is stored</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>System</th>
+      <th>Store</th>
+      <th>Item</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>macOS</td>
+      <td>Keychain Access, <em>login</em> keychain</td>
+      <td>name <code class="language-plaintext highlighter-rouge">indiek</code>, account <code class="language-plaintext highlighter-rouge">author-seed</code></td>
+    </tr>
+    <tr>
+      <td>Windows</td>
+      <td>Credential Manager → Windows Credentials</td>
+      <td><code class="language-plaintext highlighter-rouge">author-seed@indiek</code></td>
+    </tr>
+    <tr>
+      <td>Linux</td>
+      <td>Secret Service (GNOME <em>Passwords and Keys</em>, KWallet)</td>
+      <td>service <code class="language-plaintext highlighter-rouge">indiek</code>, username <code class="language-plaintext highlighter-rouge">author-seed</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code class="language-plaintext highlighter-rouge">ik key_show</code> prints the public key and where it comes from.</p>
+
+<h3 id="revoke-the-apps-access-or-delete-the-key">Revoke the app’s access, or delete the key</h3>
+
+<p><strong>Back up first</strong> (<a href="#back-up">above</a>). Deleting the keychain item deletes
+your identity from this computer. Without a backup, it is gone for good.</p>
+
+<ul>
+  <li><strong>macOS, revoke the app’s access</strong>: open <em>Keychain Access</em>, search
+<code class="language-plaintext highlighter-rouge">indiek</code>, double-click the item, open <strong>Access Control</strong> and remove
+<em>indiek-sidecar</em> (and <em>IndieK</em>). The app asks for permission again at its
+next launch. Some macOS versions delete the whole item when its access
+list is edited, which is one more reason to back up first.</li>
+  <li><strong>macOS, delete</strong>: in <em>Keychain Access</em>, right-click the item → <strong>Delete</strong>;
+or in Terminal:
+<code class="language-plaintext highlighter-rouge">security delete-generic-password -s indiek -a author-seed</code>.</li>
+  <li><strong>Windows, delete</strong>: <em>Control Panel → Credential Manager → Windows
+Credentials</em>, expand <code class="language-plaintext highlighter-rouge">author-seed@indiek</code>, <strong>Remove</strong>.</li>
+  <li><strong>Linux, delete</strong>: in <em>Passwords and Keys</em> (Seahorse), search <code class="language-plaintext highlighter-rouge">indiek</code> and
+delete the item; or <code class="language-plaintext highlighter-rouge">secret-tool clear service indiek username author-seed</code>.</li>
+</ul>
+
+<p>To put the key back later: <code class="language-plaintext highlighter-rouge">ik key_restore ~/indiek-key.ikkey --keychain</code>,
+or <strong>Author key → Import</strong> in the app.</p>
+
+<h2 id="update">Update</h2>
+
+<p>Download and install the new release the same way: it replaces the old app
+and keeps your workspace list and your key. There is no automatic update
+yet. Each release lists its changes in the
+<a href="https://github.com/indiek/indiek-desktop/blob/main/CHANGELOG.md">changelog</a>.</p>
+
+<p>On macOS, the unsigned app asks again for keychain access after each update
+(<a href="#keychain-prompts-on-macos">above</a>).</p>
+
+<h2 id="uninstall">Uninstall</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>System</th>
+      <th>Remove the app</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>macOS</td>
+      <td>Drag IndieK from Applications to the Trash</td>
+    </tr>
+    <tr>
+      <td>Windows</td>
+      <td>Settings → Apps → IndieK → Uninstall</td>
+    </tr>
+    <tr>
+      <td>Linux</td>
+      <td><code class="language-plaintext highlighter-rouge">.deb</code>: remove the package with your package manager. <code class="language-plaintext highlighter-rouge">.AppImage</code>: delete the file</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The app leaves behind, on purpose:</p>
+
+<ul>
+  <li><strong>your archives</strong>: they are your data, wherever you put them;</li>
+  <li>your <strong>key</strong> in the keychain (delete it <a href="#revoke-the-apps-access-or-delete-the-key">as above</a>
+only if you no longer need this identity);</li>
+  <li>the workspace list <code class="language-plaintext highlighter-rouge">~/.indiek/workspaces.json</code> and the <code class="language-plaintext highlighter-rouge">ik</code> launcher
+<code class="language-plaintext highlighter-rouge">~/.local/bin/ik</code>: delete them by hand if you wish.</li>
+</ul>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>What you see</th>
+      <th>What to do</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>macOS: <em>“IndieK” Not Opened</em> / <em>Apple could not verify…</em></td>
+      <td>Expected for unsigned builds: <a href="#macos">Install → macOS</a></td>
+    </tr>
+    <tr>
+      <td>macOS: <em>“IndieK” is damaged and can’t be opened</em></td>
+      <td>Run the <code class="language-plaintext highlighter-rouge">xattr</code> command of <a href="#macos">Install → macOS</a></td>
+    </tr>
+    <tr>
+      <td>Windows: <em>Windows protected your PC</em></td>
+      <td><strong>More info → Run anyway</strong></td>
+    </tr>
+    <tr>
+      <td>The window stays on <em>Starting the local IndieK server…</em> for a long time</td>
+      <td>The first launch after an install or update can take about 15 s on macOS. If it ends with <em>The IndieK server stopped before it was ready</em>, see the next row</td>
+    </tr>
+    <tr>
+      <td><em>The IndieK server could not be started</em> or <em>stopped before it was ready</em></td>
+      <td>Quit and reopen the app. If it persists, start it from a terminal to see the error (macOS: <code class="language-plaintext highlighter-rouge">/Applications/IndieK.app/Contents/MacOS/IndieK</code>) and report it</td>
+    </tr>
+    <tr>
+      <td>Writes fail with <em>author key missing</em></td>
+      <td>Create or import a key: <a href="#your-author-key">Your author key</a></td>
+    </tr>
+    <tr>
+      <td>The header chip says <code class="language-plaintext highlighter-rouge">env</code> and ignores the key you created</td>
+      <td><code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code> is set in the app’s environment and takes precedence: remove it</td>
+    </tr>
+    <tr>
+      <td>Linux: <em>keychain unavailable</em></td>
+      <td>No Secret Service keyring is running: install and unlock GNOME Keyring or KWallet, or set <code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code></td>
+    </tr>
+    <tr>
+      <td><em>Archive integrity</em> error when opening an archive</td>
+      <td>The files on disk are inconsistent (a manual edit, a bad git merge): check with <code class="language-plaintext highlighter-rouge">ik verify</code></td>
+    </tr>
+    <tr>
+      <td><em>Archive locked</em></td>
+      <td>Another program (often a long <code class="language-plaintext highlighter-rouge">ik</code> command) is writing to the same archive: wait and retry</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ik: command not found</code> after <strong>Install ik Command…</strong></td>
+      <td>Add <code class="language-plaintext highlighter-rouge">~/.local/bin</code> to your <code class="language-plaintext highlighter-rouge">PATH</code> (<a href="#the-ik-command-line">The <code class="language-plaintext highlighter-rouge">ik</code> command line</a>) and open a new terminal</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Something else? Report it on the
+<a href="https://github.com/indiek/indiek-desktop/issues">desktop repository’s issue tracker</a>.</p>
+
+        </main>
+        <aside class="toc" aria-label="On this page">
+            <p class="toc-title">On this page</p>
+            <nav id="toc"></nav>
+        </aside>
+    </div>
+    
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>IndieK — an open archival format for knowledge graphs.</span>
+            <span>Specification, <code>indiek</code> package and website: Apache-2.0 · <a href="/docs/license/">License</a></span>
+        </div>
+    </footer>
+</body>
+
+</html>

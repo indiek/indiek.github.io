@@ -28,6 +28,8 @@
                 
                 <a href="/docs/intro/" >Get started</a>
                 
+                <a href="/docs/desktop/" >Desktop app</a>
+                
                 <a href="/docs/sdk/" >SDK</a>
                 
                 <a href="/docs/cli/" >CLI</a>
@@ -53,6 +55,7 @@ by their authors, append-only, and verifiable by anyone — with nothing but a
 published specification and standard cryptography.</p>
 <div class="buttons">
 <a class="button primary" href="/docs/intro/">Get started</a>
+<a class="button secondary" href="/docs/desktop/">Desktop app</a>
 <a class="button secondary" href="/docs/mission/">Read the vision</a>
 <a class="button secondary" href="/docs/format/">The specification</a>
 </div>
@@ -86,6 +89,65 @@ published specification and standard cryptography.</p>
 <div class="card"><h3>Edges carry content</h3><p>A connection between two ideas has its own text, author, tags and history. "Why are these linked?" gets a first-class answer.</p></div>
 <div class="card"><h3>Your vocabulary</h3><p>No fixed ontology. Tags are designed freely, for nodes and for edges, and anyone can annotate a graph with their own key.</p></div>
 <div class="card"><h3>Built to be checked</h3><p>Seals commit to a whole archive in one short hash. Publish it, and anyone can verify their copy — offline, without trusting anyone.</p></div>
+</div>
+</section>
+
+<section class="section">
+<div class="two-col">
+<div>
+
+      <h2 id="indiek-desktop">IndieK Desktop</h2>
+
+      <p>One app for macOS, Windows and Linux. Open an archive folder, explore its
+knowledge graph, filter and colour it by tags, and write nodes, edges and
+tags, all signed with your key and saved straight into the archive.</p>
+
+      <ul>
+        <li>No Python, no terminal, no account: everything runs on your computer and
+works offline.</li>
+        <li>Your archives stay plain folders, ready for <code class="language-plaintext highlighter-rouge">git</code>, <code class="language-plaintext highlighter-rouge">ik</code> and any other tool.</li>
+        <li>The <code class="language-plaintext highlighter-rouge">ik</code> command line comes with it.</li>
+      </ul>
+
+      <p><a href="/docs/desktop/">Install the desktop app →</a> · <a href="/docs/web-ui/">Web UI guide →</a></p>
+
+    </div>
+<div>
+
+      <h2 id="four-pieces-one-format">Four pieces, one format</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Piece</th>
+            <th>For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="/docs/desktop/">IndieK Desktop</a></td>
+            <td>everyone</td>
+          </tr>
+          <tr>
+            <td><a href="/docs/web-ui/">Web UI</a></td>
+            <td>browsing and writing graphs</td>
+          </tr>
+          <tr>
+            <td><a href="/docs/api/">Local API</a></td>
+            <td>building your own interface</td>
+          </tr>
+          <tr>
+            <td><a href="/docs/intro/"><code class="language-plaintext highlighter-rouge">indiek</code> SDK and <code class="language-plaintext highlighter-rouge">ik</code> CLI</a></td>
+            <td>Python and the shell</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>All free and open source, all reading and writing the same archives.</p>
+
+      <p><a href="/docs/architecture/">How they fit together →</a></p>
+
+    </div>
 </div>
 </section>
 
@@ -168,11 +230,12 @@ ik verify
     <div class="status">
 <span><strong>indiek 1.3.0</strong> — Python SDK and <code>ik</code> CLI</span>
 <span><strong>Format 3.1</strong> — reads every version since 3.0</span>
+<span><strong>IndieK Desktop</strong> — first release coming soon</span>
 <span><strong>1 November 2026</strong> — contributions open</span>
 </div>
 
-    <p>The format specification and the <code class="language-plaintext highlighter-rouge">indiek</code> package are free and open source
-under the Apache License 2.0. Read <a href="/docs/mission/">the vision</a>, then
+    <p>The format specification, the <code class="language-plaintext highlighter-rouge">indiek</code> package, the local API, the web UI
+and the desktop app are free and open source under the Apache License 2.0. Read <a href="/docs/mission/">the vision</a>, then
 <a href="/docs/intro/">get started</a>. If IndieK is useful to you,
 <a href="/docs/support/">support it</a>.</p>
 

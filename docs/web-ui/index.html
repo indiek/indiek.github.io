@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Web UI guide — IndieK</title>
+    <meta name="description" content="Everything the IndieK graph explorer can do: open archives, explore the graph, filter and colour by tags, write nodes, edges and tags, and manage your author key.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/site.js"></script>
+    
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="1a61fc2b-ae27-4e34-b9f3-668d65e0036b"></script>
+    
+</head>
+
+<body class="is-doc">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">◆</span> IndieK
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show navigation">
+            <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">☰</label>
+            <nav class="topnav" aria-label="Main">
+                
+                <a href="/docs/mission/" >Vision</a>
+                
+                <a href="/docs/intro/" >Get started</a>
+                
+                <a href="/docs/desktop/" >Desktop app</a>
+                
+                <a href="/docs/sdk/" >SDK</a>
+                
+                <a href="/docs/cli/" >CLI</a>
+                
+                <a href="/docs/format/" >Format</a>
+                
+                <a href="/docs/examples/" >Examples</a>
+                
+                <a href="/docs/support/" >Support</a>
+                
+            </nav>
+        </div>
+    </header>
+
+    
+    <div class="layout">
+        <aside class="sidebar" aria-label="Documentation">
+            
+            <p class="sidebar-section">Overview</p>
+            <ul>
+                
+                <li><a href="/docs/mission/" >Vision</a></li>
+                
+                <li><a href="/docs/intro/" >Get started</a></li>
+                
+                <li><a href="/docs/examples/" >Examples</a></li>
+                
+                <li><a href="/docs/architecture/" >Architecture</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Apps</p>
+            <ul>
+                
+                <li><a href="/docs/desktop/" >IndieK Desktop</a></li>
+                
+                <li><a href="/docs/web-ui/" class="active" aria-current="page">Web UI guide</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Reference</p>
+            <ul>
+                
+                <li><a href="/docs/sdk/" >Python SDK</a></li>
+                
+                <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/api/" >Local API</a></li>
+                
+                <li><a href="/docs/format/" >Format specification</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Project</p>
+            <ul>
+                
+                <li><a href="/docs/contributing/" >Contributing</a></li>
+                
+                <li><a href="/docs/license/" >License</a></li>
+                
+                <li><a href="/docs/support/" >Support IndieK</a></li>
+                
+            </ul>
+            
+        </aside>
+        <main class="content" id="content">
+            <h1 id="web-ui-guide">Web UI guide</h1>
+
+<p>The <strong>graph explorer</strong> is IndieK’s graphical interface. It shows an
+archive’s knowledge graph, lets you read every node and edge, filter by tags
+and write new content, all signed with your <a href="/docs/desktop/#your-author-key">author key</a>.</p>
+
+<p>You normally get it inside the <a href="/docs/desktop/">desktop app</a>. Developers can
+also run it in a browser, served by the <a href="/docs/api/">local API</a>
+(<a href="#run-it-yourself">Run it yourself</a>).</p>
+
+<h2 id="the-home-screen">The home screen</h2>
+
+<p>Type the <strong>absolute path</strong> of a folder, then:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Button</th>
+      <th>Does</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Open workspace</strong></td>
+      <td>Opens an existing archive. The path may be the archive itself or a folder containing exactly one archive; if there are several, the UI lists them to pick from</td>
+    </tr>
+    <tr>
+      <td><strong>New archive</strong></td>
+      <td>Creates an empty archive in a new or empty folder</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>A <em>workspace</em> is simply a folder the app remembers. The list below the field
+shows them; open one with a click, or remove it from the list. Removing a
+workspace never touches its files.</p>
+
+<p>The <strong>Home</strong> button in the header brings you back here and clears the current
+view (selection, filters, colours).</p>
+
+<h2 id="the-workspace-view">The workspace view</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Area</th>
+      <th>Shows</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Header</strong></td>
+      <td>The workspace name, the buttons <strong>Create node</strong>, <strong>Create edge</strong> and <strong>Create tag</strong>, and your author-key chip</td>
+    </tr>
+    <tr>
+      <td><strong>Graph</strong> (left, top)</td>
+      <td>The nodes and edges, with a minimap</td>
+    </tr>
+    <tr>
+      <td><strong>Tags</strong> (left, bottom)</td>
+      <td>Node tags and edge tags, with search, filters and colours</td>
+    </tr>
+    <tr>
+      <td><strong>Item detail</strong> (right)</td>
+      <td>The selected node or edge: content, metadata, tags and actions</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Each pane can be collapsed to a thin strip and reopened from it, to give the
+graph more room.</p>
+
+<h2 id="exploring-the-graph">Exploring the graph</h2>
+
+<h3 id="mouse">Mouse</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Action</th>
+      <th>Effect</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Click a node or an edge</td>
+      <td>Selects it and shows it in the item detail pane</td>
+    </tr>
+    <tr>
+      <td>Click empty space</td>
+      <td>Clears the selection</td>
+    </tr>
+    <tr>
+      <td>Drag empty space</td>
+      <td>Moves the view; the scroll wheel zooms</td>
+    </tr>
+    <tr>
+      <td>Drag a node</td>
+      <td>Moves it</td>
+    </tr>
+    <tr>
+      <td>Double-click empty space</td>
+      <td>Opens the node editor to create a node <strong>at that spot</strong></td>
+    </tr>
+    <tr>
+      <td>Drag the <strong>+</strong> handle of the selected node</td>
+      <td>Draws an arrow; click another node to create an edge to it, click elsewhere or press Esc to cancel</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="keyboard">Keyboard</h3>
+
+<p>Click the graph once to give it the keyboard focus, then:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Keys</th>
+      <th>Effect</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Arrow</td>
+      <td>Follow an <strong>outgoing</strong> edge in that direction on screen</td>
+    </tr>
+    <tr>
+      <td>Space + Arrow</td>
+      <td>Follow an <strong>incoming</strong> edge in that direction</td>
+    </tr>
+    <tr>
+      <td>Shift + Arrow</td>
+      <td>Select the edge in that direction</td>
+    </tr>
+    <tr>
+      <td>N / Shift + N</td>
+      <td>Cycle through the other candidates of the last move</td>
+    </tr>
+    <tr>
+      <td>Esc</td>
+      <td>Drop the cycle, or cancel drawing an edge</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Tab is deliberately not captured, so the keyboard can always leave the
+graph.</p>
+
+<h3 id="graph-settings">Graph settings</h3>
+
+<p>The ⚙ button above the graph opens <strong>Graph settings</strong>:</p>
+
+<ul>
+  <li><strong>Layout</strong>: <em>Continuous force</em> (default), <em>Directed chain</em> (follows the
+edge direction) or <em>Preset</em>. <strong>↻ Re-layout</strong> arranges everything again.</li>
+  <li><strong>Style</strong>: node size and shape, edge labels, and other display options.</li>
+  <li><strong>Tag style</strong>: the style applied to items carrying a given tag.</li>
+</ul>
+
+<p>The layout runs only when a workspace opens, when you change it, or on
+<strong>↻ Re-layout</strong>. Creating items or filtering never moves the nodes already on
+screen: new nodes appear in free space (or where you double-clicked).</p>
+
+<h2 id="reading-items">Reading items</h2>
+
+<p>The item detail pane shows the selected item:</p>
+
+<ul>
+  <li><strong>Nodes</strong>: the title and content. Markdown is rendered (CommonMark plus
+GitHub tables, lists and strikethrough); PNG and JPEG images display inline
+and open in a zoomable viewer; PDF and TIFF files are offered as downloads
+(an in-app PDF viewer is planned). <code class="language-plaintext highlighter-rouge">uri</code> nodes show their link;
+<code class="language-plaintext highlighter-rouge">local_file</code> nodes show the recorded path, size and hash.</li>
+  <li><strong>Edges</strong>: their source and target, and their content, if they have any.</li>
+  <li>For both: the alias (<code class="language-plaintext highlighter-rouge">e1</code>, <code class="language-plaintext highlighter-rouge">e2</code>, …), the author’s key (abbreviated; hover
+for the full key), the creation and last-update dates, and the tags.</li>
+</ul>
+
+<p>To see an item’s full history of versions, use <code class="language-plaintext highlighter-rouge">ik read</code> on the command line.</p>
+
+<p>The UI never runs scripts or HTML contained in archived content.</p>
+
+<h2 id="writing">Writing</h2>
+
+<p>Every write is a signed event appended to the archive, exactly as <code class="language-plaintext highlighter-rouge">ik</code> would
+write it. Nothing is ever overwritten: revisions keep the history (see
+<a href="/docs/intro/#revisions">Revisions</a>). Writing needs an author key; without
+one, the UI opens the <strong>Author key</strong> dialog.</p>
+
+<h3 id="nodes">Nodes</h3>
+
+<p><strong>Create node</strong> (or double-click the graph) opens the node editor:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Kind</th>
+      <th>Content</th>
+      <th>Stored as</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Text</strong></td>
+      <td>Markdown or plain text, with a preview tab</td>
+      <td>a <code class="language-plaintext highlighter-rouge">managed</code> node: the text is copied into the archive</td>
+    </tr>
+    <tr>
+      <td><strong>URL</strong></td>
+      <td>a link</td>
+      <td>a <code class="language-plaintext highlighter-rouge">uri</code> node: recorded, never fetched</td>
+    </tr>
+    <tr>
+      <td><strong>Local file</strong></td>
+      <td>the path of a file on your computer</td>
+      <td>a <code class="language-plaintext highlighter-rouge">local_file</code> node: path, size and SHA-256 recorded; the file stays where it is</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>An optional <strong>title</strong> applies to every kind. Images and PDFs can be archived
+with <code class="language-plaintext highlighter-rouge">ik create_node --content &lt;file&gt;</code> for now; creating them from the UI is
+planned.</p>
+
+<h3 id="revising-a-node">Revising a node</h3>
+
+<p><strong>Supersede</strong> in the item detail pane opens the editor with the current
+content; your edit becomes a new version of the same node (same identifier,
+same alias). Only the node’s author can supersede it. Text nodes can be
+superseded from the UI; images and PDFs not yet.</p>
+
+<h3 id="edges">Edges</h3>
+
+<ul>
+  <li><strong>Create edge</strong> in the header, <strong>New edge from here</strong> in the item detail
+pane, or the <strong>+</strong> handle on the graph.</li>
+  <li>Pick the source and the target (by alias or title) and, optionally, the
+edge’s text: “proves”, “contradicts”, “is an example of”. An edge may have
+no content at all.</li>
+  <li><strong>Supersede</strong> on a selected edge changes its content, or removes it. The
+endpoints of an edge never change.</li>
+</ul>
+
+<h3 id="tags">Tags</h3>
+
+<ul>
+  <li><strong>Create tag</strong>: a name, a description and a kind, <em>node</em> tag or <em>edge</em>
+tag.</li>
+  <li><strong>Assign tag</strong> in the item detail pane: pick a tag of the matching kind.
+You can assign only the tags you created; anyone can create their own.</li>
+</ul>
+
+<h2 id="tags-pane-filter-and-colour">Tags pane: filter and colour</h2>
+
+<ul>
+  <li><strong>Search</strong> tags by name.</li>
+  <li>Node tags and edge tags are listed in two columns.</li>
+  <li><strong>Filter</strong>: toggle tags to show only the items carrying them; clear the
+filters to see everything again.</li>
+  <li><strong>Colour</strong>: pick a colour per tag to colour the items carrying it.</li>
+</ul>
+
+<p>Filters, colours, graph settings and node positions are not saved yet: they
+reset when you reload or reopen the workspace.</p>
+
+<h2 id="author-key">Author key</h2>
+
+<p>The chip in the header shows your public key and its source (<code class="language-plaintext highlighter-rouge">keychain</code> or
+<code class="language-plaintext highlighter-rouge">env</code>). Click it to open the <strong>Author key</strong> dialog:</p>
+
+<ul>
+  <li><strong>Create</strong> a key (stored in the OS keychain), then download its encrypted
+backup;</li>
+  <li><strong>Import</strong> a key from a backup file or from its hexadecimal secret;</li>
+  <li><strong>Back up</strong> the current key into a password-encrypted <code class="language-plaintext highlighter-rouge">.ikkey</code> file.</li>
+</ul>
+
+<p>The secret key never reaches the page: the local API stores it, signs with
+it, and encrypts backups before sending them. Details and safe deletion:
+<a href="/docs/desktop/#keep-your-key-safe">Keep your key safe</a>.</p>
+
+<h2 id="current-limitations">Current limitations</h2>
+
+<ul>
+  <li>Filters, colours, graph settings and positions are not persisted.</li>
+  <li>PDF and TIFF nodes are downloads, not previews.</li>
+  <li>Image and PDF nodes cannot yet be created or superseded from the UI (use
+<code class="language-plaintext highlighter-rouge">ik</code>).</li>
+  <li>Folders are opened by typing their path; a folder picker is planned.</li>
+</ul>
+
+<h2 id="run-it-yourself">Run it yourself</h2>
+
+<p>The graph explorer is a Next.js application exported as static files: it
+has no server of its own and talks only to the <a href="/docs/api/">local API</a>, on
+the same origin. Two ways to run it outside the desktop app:</p>
+
+<ul>
+  <li><strong>Built</strong>: download <code class="language-plaintext highlighter-rouge">custom-graph-explorer-&lt;version&gt;-out.tar.gz</code> from the
+<a href="https://github.com/indiek/indiek-webui/releases">web UI releases</a>, unpack
+it, and start the API with <code class="language-plaintext highlighter-rouge">INDIEK_API_STATIC_DIR</code> pointing at the folder
+(<a href="/docs/api/#serve-the-web-ui">Serve the web UI</a>).</li>
+  <li><strong>From source</strong>, with hot reload: see the
+<a href="https://github.com/indiek/indiek-webui#3-first-time-setup">web UI repository’s README</a>
+(Node.js, <code class="language-plaintext highlighter-rouge">npm run dev</code>, a dev proxy to the API). The README also
+describes the code layout, state management, testing and how to add an
+API call.</li>
+</ul>
+
+        </main>
+        <aside class="toc" aria-label="On this page">
+            <p class="toc-title">On this page</p>
+            <nav id="toc"></nav>
+        </aside>
+    </div>
+    
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>IndieK — an open archival format for knowledge graphs.</span>
+            <span>Specification, <code>indiek</code> package and website: Apache-2.0 · <a href="/docs/license/">License</a></span>
+        </div>
+    </footer>
+</body>
+
+</html>

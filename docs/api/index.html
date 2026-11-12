@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Local API — IndieK</title>
+    <meta name="description" content="indiek-api, the local HTTP server behind the IndieK web UI and desktop app: install, run, configure, its security model, routes and errors.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script defer src="/assets/js/site.js"></script>
+    
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="1a61fc2b-ae27-4e34-b9f3-668d65e0036b"></script>
+    
+</head>
+
+<body class="is-doc">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">◆</span> IndieK
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Show navigation">
+            <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true">☰</label>
+            <nav class="topnav" aria-label="Main">
+                
+                <a href="/docs/mission/" >Vision</a>
+                
+                <a href="/docs/intro/" >Get started</a>
+                
+                <a href="/docs/desktop/" >Desktop app</a>
+                
+                <a href="/docs/sdk/" >SDK</a>
+                
+                <a href="/docs/cli/" >CLI</a>
+                
+                <a href="/docs/format/" >Format</a>
+                
+                <a href="/docs/examples/" >Examples</a>
+                
+                <a href="/docs/support/" >Support</a>
+                
+            </nav>
+        </div>
+    </header>
+
+    
+    <div class="layout">
+        <aside class="sidebar" aria-label="Documentation">
+            
+            <p class="sidebar-section">Overview</p>
+            <ul>
+                
+                <li><a href="/docs/mission/" >Vision</a></li>
+                
+                <li><a href="/docs/intro/" >Get started</a></li>
+                
+                <li><a href="/docs/examples/" >Examples</a></li>
+                
+                <li><a href="/docs/architecture/" >Architecture</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Apps</p>
+            <ul>
+                
+                <li><a href="/docs/desktop/" >IndieK Desktop</a></li>
+                
+                <li><a href="/docs/web-ui/" >Web UI guide</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Reference</p>
+            <ul>
+                
+                <li><a href="/docs/sdk/" >Python SDK</a></li>
+                
+                <li><a href="/docs/cli/" >ik CLI</a></li>
+                
+                <li><a href="/docs/api/" class="active" aria-current="page">Local API</a></li>
+                
+                <li><a href="/docs/format/" >Format specification</a></li>
+                
+            </ul>
+            
+            <p class="sidebar-section">Project</p>
+            <ul>
+                
+                <li><a href="/docs/contributing/" >Contributing</a></li>
+                
+                <li><a href="/docs/license/" >License</a></li>
+                
+                <li><a href="/docs/support/" >Support IndieK</a></li>
+                
+            </ul>
+            
+        </aside>
+        <main class="content" id="content">
+            <h1 id="local-api">Local API</h1>
+
+<p><code class="language-plaintext highlighter-rouge">indiek-api</code> is a small HTTP server that runs <strong>on your own computer</strong>. It
+opens archive folders in place with the <a href="/docs/sdk/"><code class="language-plaintext highlighter-rouge">indiek</code> SDK</a>, verifies
+them, and exposes their current state and the write operations over HTTP.
+It serves the <a href="/docs/web-ui/">web UI</a>, and the <a href="/docs/desktop/">desktop app</a>
+bundles it.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web UI (browser or app window) ──HTTP──► indiek-api (127.0.0.1 only) ──► indiek SDK ──► archive folder
+</code></pre></div></div>
+
+<p>Use it directly to:</p>
+
+<ul>
+  <li>run the web UI in your own browser, without the desktop app;</li>
+  <li>build another interface or script on top of a stable HTTP contract;</li>
+  <li>embed the API in your own Python application.</li>
+</ul>
+
+<p>It is free software (<a href="/docs/license/">Apache-2.0</a>), published on
+<a href="https://pypi.org/project/indiek-api/">PyPI</a> and
+<a href="https://github.com/indiek/indiek-api">GitHub</a>.</p>
+
+<h2 id="install-and-run">Install and run</h2>
+
+<p>It needs Python 3.14 or newer.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uvx indiek-api                    <span class="c"># run it once, without installing</span>
+uv tool <span class="nb">install </span>indiek-api        <span class="c"># or install the indiek-api command</span>
+indiek-api <span class="nt">--no-browser</span>
+</code></pre></div></div>
+
+<p>The server picks a random free port on <code class="language-plaintext highlighter-rouge">127.0.0.1</code> and prints a one-time
+<strong>launch link</strong>:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>IndieK Desktop: open http://127.0.0.1:51234/api/session?token=…
+</code></pre></div></div>
+
+<p>Open it once in your browser (by default it opens by itself): it logs that
+browser in and redirects to the UI. Each restart prints a new link, and a
+link works only once.</p>
+
+<p>Interactive API documentation is served at <code class="language-plaintext highlighter-rouge">/docs</code>, the OpenAPI schema at
+<code class="language-plaintext highlighter-rouge">/openapi.json</code>.</p>
+
+<h3 id="serve-the-web-ui">Serve the web UI</h3>
+
+<p>The server serves a built web UI when <code class="language-plaintext highlighter-rouge">INDIEK_API_STATIC_DIR</code> points at it:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir </span>web-ui <span class="o">&amp;&amp;</span> <span class="nb">tar</span> <span class="nt">-xzf</span> custom-graph-explorer-&lt;version&gt;-out.tar.gz <span class="nt">-C</span> web-ui
+<span class="nv">INDIEK_API_STATIC_DIR</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/web-ui"</span> indiek-api
+</code></pre></div></div>
+
+<p>Download the bundle from the
+<a href="https://github.com/indiek/indiek-webui/releases">web UI releases</a>. The
+server then answers <code class="language-plaintext highlighter-rouge">/api/*</code> and <code class="language-plaintext highlighter-rouge">/health</code> itself and serves every other
+path from that folder. Restart the server after replacing the folder:
+the security policy is computed from the UI files at startup.</p>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>All settings are environment variables. A <code class="language-plaintext highlighter-rouge">.env</code> file is read too
+(<code class="language-plaintext highlighter-rouge">INDIEK_API_ENV_FILE</code>); real environment variables win.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Default</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code></td>
+      <td>none</td>
+      <td>The 64-hex Ed25519 secret that signs writes (same variable as <code class="language-plaintext highlighter-rouge">ik</code>). Takes precedence over the keychain key. Without either, reads work and writes fail with <code class="language-plaintext highlighter-rouge">author_key_missing</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">INDIEK_API_ENV_FILE</code></td>
+      <td><code class="language-plaintext highlighter-rouge">.env</code></td>
+      <td>Dotenv file loaded at startup</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">INDIEK_API_REGISTRY</code></td>
+      <td><code class="language-plaintext highlighter-rouge">~/.indiek/workspaces.json</code></td>
+      <td>The list of opened archive folders</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">INDIEK_API_PORT</code></td>
+      <td>a random free port</td>
+      <td>A fixed port (the host is always <code class="language-plaintext highlighter-rouge">127.0.0.1</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">INDIEK_API_TOKEN</code></td>
+      <td>random, per launch</td>
+      <td>A fixed token, <strong>for development and tests only</strong> (16 characters or more); its launch link stays reusable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">INDIEK_API_OPEN_BROWSER</code></td>
+      <td><code class="language-plaintext highlighter-rouge">1</code></td>
+      <td><code class="language-plaintext highlighter-rouge">0</code> only prints the launch link (same as <code class="language-plaintext highlighter-rouge">--no-browser</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">INDIEK_API_STATIC_DIR</code></td>
+      <td>none</td>
+      <td>The built web UI to serve at <code class="language-plaintext highlighter-rouge">/</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">INDIEK_API_CSP_REPORT_ONLY</code></td>
+      <td><code class="language-plaintext highlighter-rouge">0</code></td>
+      <td><code class="language-plaintext highlighter-rouge">1</code> reports Content-Security-Policy violations in the browser console instead of blocking (debugging)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">INDIEK_API_CORS_ORIGINS</code></td>
+      <td>none</td>
+      <td>Comma-separated origins allowed to call the API from another origin</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">IK_CACHE_DIR</code></td>
+      <td>the SDK’s default</td>
+      <td>Where the SDK keeps its verification cache (<a href="/docs/sdk/">SDK</a>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>To experiment without touching your real workspace list:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">INDIEK_API_REGISTRY</span><span class="o">=</span>/tmp/ik-registry.json indiek-api
+</code></pre></div></div>
+
+<h3 id="command-line-flags">Command-line flags</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Effect</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--no-browser</code></td>
+      <td>Print the launch link, do not open a browser</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--handshake</code></td>
+      <td>Print exactly one JSON line on stdout, <code class="language-plaintext highlighter-rouge">{"indiek_api": "&lt;version&gt;", "port": &lt;port&gt;, "launch_url": "&lt;url&gt;"}</code>, send all logs to stderr and never open a browser. For a parent program (the desktop app) that reads the launch link through a pipe</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--exit-on-stdin-eof</code></td>
+      <td>Stop when stdin closes, so the server never outlives its parent program</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="security-model">Security model</h2>
+
+<p>The server can sign in your name, so it defends itself even against other
+programs and web pages on the same computer:</p>
+
+<ul>
+  <li><strong>Loopback only.</strong> It binds to <code class="language-plaintext highlighter-rouge">127.0.0.1</code> and answers only requests whose
+<code class="language-plaintext highlighter-rouge">Host</code> is <code class="language-plaintext highlighter-rouge">127.0.0.1</code>, <code class="language-plaintext highlighter-rouge">localhost</code> or <code class="language-plaintext highlighter-rouge">[::1]</code>. This defeats DNS-rebinding
+attacks from web pages.</li>
+  <li><strong>A per-launch token.</strong> Every <code class="language-plaintext highlighter-rouge">/api/*</code> route needs it, either as
+<code class="language-plaintext highlighter-rouge">Authorization: Bearer &lt;token&gt;</code> or as the session cookie set by the launch
+link (<code class="language-plaintext highlighter-rouge">HttpOnly</code>, <code class="language-plaintext highlighter-rouge">SameSite=Strict</code>). The launch link works once.
+<code class="language-plaintext highlighter-rouge">/health</code> and the UI files are public.</li>
+  <li><strong>A header on every write.</strong> <code class="language-plaintext highlighter-rouge">POST</code>, <code class="language-plaintext highlighter-rouge">PUT</code>, <code class="language-plaintext highlighter-rouge">PATCH</code> and <code class="language-plaintext highlighter-rouge">DELETE</code> on
+<code class="language-plaintext highlighter-rouge">/api/*</code> also need <code class="language-plaintext highlighter-rouge">X-IndieK-Request: 1</code>. A page from another origin would
+need a CORS preflight to send it, and the server never grants one.</li>
+  <li><strong>A strict Content-Security-Policy.</strong> Only the UI’s own scripts, listed
+by hash, may run; no inline or <code class="language-plaintext highlighter-rouge">eval</code> code. Archived content (blobs) is
+served under a sandboxed policy with <code class="language-plaintext highlighter-rouge">nosniff</code>, so a hostile file in an
+archive cannot run code in the UI.</li>
+  <li><strong>The secret key never leaves the server.</strong> <code class="language-plaintext highlighter-rouge">/api/identity</code> returns the
+public key only; key backups are encrypted (Argon2id) before they are
+sent.</li>
+</ul>
+
+<h2 id="routes">Routes</h2>
+
+<p>Archive routes live under <code class="language-plaintext highlighter-rouge">/api/workspaces/{workspace_id}</code> (written <code class="language-plaintext highlighter-rouge">…</code>
+below). Item references accept a UUID or an alias (<code class="language-plaintext highlighter-rouge">e3</code>); tag references a
+UUID or an <code class="language-plaintext highlighter-rouge">m</code> alias (<code class="language-plaintext highlighter-rouge">m1</code>). The schemas of every request and response are
+at <code class="language-plaintext highlighter-rouge">/docs</code>.</p>
+
+<h3 id="server-and-session">Server and session</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method and path</th>
+      <th>Body</th>
+      <th>Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET /health</code></td>
+      <td> </td>
+      <td><code class="language-plaintext highlighter-rouge">{"status": "ok", "api_version": "&lt;version&gt;"}</code> (no token needed)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET /api/session?token=…</code></td>
+      <td> </td>
+      <td><code class="language-plaintext highlighter-rouge">303</code> to <code class="language-plaintext highlighter-rouge">/</code> with the session cookie; <code class="language-plaintext highlighter-rouge">401</code> if the token is wrong or used</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="author-key">Author key</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method and path</th>
+      <th>Body</th>
+      <th>Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET /api/identity</code></td>
+      <td> </td>
+      <td><code class="language-plaintext highlighter-rouge">{public_key, source, keychain_available}</code>, source <code class="language-plaintext highlighter-rouge">env</code>, <code class="language-plaintext highlighter-rouge">keychain</code> or <code class="language-plaintext highlighter-rouge">none</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST /api/identity/generate</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{replace?}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">201</code>: a new key, stored in the OS keychain</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST /api/identity/import</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{seed_hex}</code> or <code class="language-plaintext highlighter-rouge">{backup, password}</code>, plus <code class="language-plaintext highlighter-rouge">replace?</code></td>
+      <td><code class="language-plaintext highlighter-rouge">201</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST /api/identity/backup</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{password}</code> (12+ characters)</td>
+      <td>The encrypted backup file <code class="language-plaintext highlighter-rouge">indiek-key-&lt;8 hex&gt;.ikkey</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="workspaces">Workspaces</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method and path</th>
+      <th>Body</th>
+      <th>Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET /api/workspaces</code></td>
+      <td> </td>
+      <td><code class="language-plaintext highlighter-rouge">[{workspace_id, name, path, created_at}]</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST /api/workspaces</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{path, create?}</code>; <code class="language-plaintext highlighter-rouge">create: true</code> starts an archive in a new or empty folder</td>
+      <td><code class="language-plaintext highlighter-rouge">201</code> registered, <code class="language-plaintext highlighter-rouge">200</code> already known</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DELETE /api/workspaces/{id}</code></td>
+      <td> </td>
+      <td><code class="language-plaintext highlighter-rouge">204</code>: forgets the folder; its files are never touched</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="reading-an-archive">Reading an archive</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method and path</th>
+      <th>Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET …/graph</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{head, meta_head, nodes[], edges[], tags[]}</code>: current state, supersedes applied, with aliases and tag kinds</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET …/blobs/{sha256}</code></td>
+      <td>The content’s bytes, with its media type (a hash prefix is accepted)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET …/events</code></td>
+      <td>The base and meta event logs in log order (like <code class="language-plaintext highlighter-rouge">ik read</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="writing-to-an-archive">Writing to an archive</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method and path</th>
+      <th>Body</th>
+      <th>Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST …/nodes</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{content, title?, media_type?}</code> (managed), <code class="language-plaintext highlighter-rouge">{resource_type: "uri", uri, title?}</code> or <code class="language-plaintext highlighter-rouge">{resource_type: "local_file", path, title?}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">201 {id, alias}</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PUT …/nodes/{id}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{content, title?}</code> (stored as Markdown)</td>
+      <td><code class="language-plaintext highlighter-rouge">{id, alias}</code>: supersedes the node</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST …/edges</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{source, target, content?}</code>; no <code class="language-plaintext highlighter-rouge">content</code> for an edge without content</td>
+      <td><code class="language-plaintext highlighter-rouge">201 {id, alias}</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PUT …/edges/{id}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{content?}</code>; <code class="language-plaintext highlighter-rouge">null</code> removes the content</td>
+      <td><code class="language-plaintext highlighter-rouge">{id, alias}</code>: supersedes the edge</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST …/tags</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{name, description, kind}</code> with kind <code class="language-plaintext highlighter-rouge">node</code> or <code class="language-plaintext highlighter-rouge">edge</code></td>
+      <td><code class="language-plaintext highlighter-rouge">201 {id, alias}</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST …/tags/{tag}/assignments</code></td>
+      <td><code class="language-plaintext highlighter-rouge">{target}</code></td>
+      <td><code class="language-plaintext highlighter-rouge">201 {target, tags[]}</code>; the tag kind must match the target, and only the tag’s author may assign it</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example, with a fixed development token:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">TOKEN</span><span class="o">=</span>dev-token-0123456789
+<span class="nv">INDIEK_API_PORT</span><span class="o">=</span>8765 <span class="nv">INDIEK_API_TOKEN</span><span class="o">=</span><span class="nv">$TOKEN</span> indiek-api <span class="nt">--no-browser</span> &amp;
+
+curl <span class="nt">-s</span> <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span> http://127.0.0.1:8765/api/workspaces
+curl <span class="nt">-s</span> <span class="nt">-X</span> POST http://127.0.0.1:8765/api/workspaces/&lt;<span class="nb">id</span><span class="o">&gt;</span>/nodes <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span> <span class="nt">-H</span> <span class="s2">"X-IndieK-Request: 1"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"content": "Understanding is not retrieval", "title": "Thesis"}'</span>
+</code></pre></div></div>
+
+<h2 id="errors">Errors</h2>
+
+<p>Every error is <code class="language-plaintext highlighter-rouge">{"detail": "&lt;message&gt;", "code": "&lt;stable code&gt;"}</code>. Programs
+should branch on <code class="language-plaintext highlighter-rouge">code</code>; <code class="language-plaintext highlighter-rouge">detail</code> is for people.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th><code class="language-plaintext highlighter-rouge">code</code></th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>400</td>
+      <td><code class="language-plaintext highlighter-rouge">invalid_host</code></td>
+      <td>The <code class="language-plaintext highlighter-rouge">Host</code> header is not a loopback name</td>
+    </tr>
+    <tr>
+      <td>401</td>
+      <td><code class="language-plaintext highlighter-rouge">unauthorized</code></td>
+      <td>No valid token or session, or a wrong or used launch link</td>
+    </tr>
+    <tr>
+      <td>403</td>
+      <td><code class="language-plaintext highlighter-rouge">missing_request_header</code></td>
+      <td>A write without <code class="language-plaintext highlighter-rouge">X-IndieK-Request: 1</code></td>
+    </tr>
+    <tr>
+      <td>403</td>
+      <td><code class="language-plaintext highlighter-rouge">forbidden</code></td>
+      <td>Assigning another author’s tag</td>
+    </tr>
+    <tr>
+      <td>404</td>
+      <td><code class="language-plaintext highlighter-rouge">workspace_not_found</code>, <code class="language-plaintext highlighter-rouge">item_not_found</code>, <code class="language-plaintext highlighter-rouge">blob_not_found</code>, <code class="language-plaintext highlighter-rouge">archive_not_found</code></td>
+      <td>Unknown workspace, item, alias or hash, or the folder does not exist</td>
+    </tr>
+    <tr>
+      <td>409</td>
+      <td><code class="language-plaintext highlighter-rouge">ambiguous_archive</code></td>
+      <td>The folder contains several archives; <code class="language-plaintext highlighter-rouge">candidates</code> lists them</td>
+    </tr>
+    <tr>
+      <td>409</td>
+      <td><code class="language-plaintext highlighter-rouge">archive_integrity</code></td>
+      <td>Broken chain, bad signature or missing content: the archive on disk is inconsistent</td>
+    </tr>
+    <tr>
+      <td>409</td>
+      <td><code class="language-plaintext highlighter-rouge">archive_locked</code></td>
+      <td>Another program held the archive’s write lock (<code class="language-plaintext highlighter-rouge">.ik.lock</code>) for more than 10 s; retry</td>
+    </tr>
+    <tr>
+      <td>409</td>
+      <td><code class="language-plaintext highlighter-rouge">key_exists</code></td>
+      <td>Generating or importing a key while one is stored, without <code class="language-plaintext highlighter-rouge">replace</code></td>
+    </tr>
+    <tr>
+      <td>422</td>
+      <td><code class="language-plaintext highlighter-rouge">archive_rule</code></td>
+      <td>The SDK refused the operation (for example a tag kind that does not match the target)</td>
+    </tr>
+    <tr>
+      <td>422</td>
+      <td><code class="language-plaintext highlighter-rouge">invalid_key</code>, <code class="language-plaintext highlighter-rouge">invalid_backup</code>, <code class="language-plaintext highlighter-rouge">weak_password</code></td>
+      <td>A malformed key, a wrong backup password or damaged file, a password under 12 characters</td>
+    </tr>
+    <tr>
+      <td>422</td>
+      <td>none</td>
+      <td>Request validation; <code class="language-plaintext highlighter-rouge">detail</code> lists the problems</td>
+    </tr>
+    <tr>
+      <td>503</td>
+      <td><code class="language-plaintext highlighter-rouge">author_key_missing</code></td>
+      <td>A write without an author key</td>
+    </tr>
+    <tr>
+      <td>503</td>
+      <td><code class="language-plaintext highlighter-rouge">keychain_unavailable</code></td>
+      <td>No usable OS keychain; set <code class="language-plaintext highlighter-rouge">IK_AUTHOR_PRIVATE_KEY</code> instead</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="consistency-with-ik">Consistency with <code class="language-plaintext highlighter-rouge">ik</code></h2>
+
+<p>The API writes exactly what <code class="language-plaintext highlighter-rouge">ik</code> would write: same events, same signatures,
+same aliases; the API’s test suite compares both. Archives stay shared:</p>
+
+<ul>
+  <li>The API re-verifies an archive (chain, signatures, content) whenever its
+logs change on disk, whoever changed them: the API, <code class="language-plaintext highlighter-rouge">ik</code>, or <code class="language-plaintext highlighter-rouge">git pull</code>.</li>
+  <li>Writes from the API and from <code class="language-plaintext highlighter-rouge">ik</code> exclude each other through the SDK’s
+write lock, <code class="language-plaintext highlighter-rouge">.ik.lock</code> in the archive folder.</li>
+</ul>
+
+<h2 id="embedding-as-a-library">Embedding as a library</h2>
+
+<p><code class="language-plaintext highlighter-rouge">indiek_api.app.create_app(settings=None, *, workspaces=None, signer=None)</code>
+returns the FastAPI application. Pass your own objects to change where
+workspaces come from and who signs; they only need to match the protocols of
+<code class="language-plaintext highlighter-rouge">indiek_api.providers</code>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Protocol</th>
+      <th>Methods</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">WorkspaceProvider</code></td>
+      <td><code class="language-plaintext highlighter-rouge">list</code>, <code class="language-plaintext highlighter-rouge">register</code>, <code class="language-plaintext highlighter-rouge">remove</code>, <code class="language-plaintext highlighter-rouge">service</code></td>
+      <td>the JSON workspace list</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Signer</code></td>
+      <td><code class="language-plaintext highlighter-rouge">author</code>, <code class="language-plaintext highlighter-rouge">author_or_none</code></td>
+      <td>environment key, else the OS keychain</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">KeyManager</code> (optional)</td>
+      <td><code class="language-plaintext highlighter-rouge">status</code>, <code class="language-plaintext highlighter-rouge">store</code>, <code class="language-plaintext highlighter-rouge">backup</code>, <code class="language-plaintext highlighter-rouge">read_backup</code></td>
+      <td>as above; the <code class="language-plaintext highlighter-rouge">/api/identity</code> routes exist only when the signer is also a <code class="language-plaintext highlighter-rouge">KeyManager</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="contributing">Contributing</h2>
+
+<p>Code layout, test fixtures, conventions and the recipe for adding a route:
+the <a href="https://github.com/indiek/indiek-api#readme">API repository’s README</a>.</p>
+
+        </main>
+        <aside class="toc" aria-label="On this page">
+            <p class="toc-title">On this page</p>
+            <nav id="toc"></nav>
+        </aside>
+    </div>
+    
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>IndieK — an open archival format for knowledge graphs.</span>
+            <span>Specification, <code>indiek</code> package and website: Apache-2.0 · <a href="/docs/license/">License</a></span>
+        </div>
+    </footer>
+</body>
+
+</html>
