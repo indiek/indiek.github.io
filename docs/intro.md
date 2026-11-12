@@ -10,9 +10,22 @@ explains the handful of concepts behind it. For the *why*, read the
 [vision](/docs/mission/); for every detail, the [SDK](/docs/sdk/) and
 [CLI](/docs/cli/) references.
 
+## Two ways in
+
+- **With the desktop app**, no programming needed: install
+  [IndieK Desktop](/docs/desktop/), create your author key when it asks,
+  open or create an archive folder, and use the
+  [graph explorer](/docs/web-ui/). The [concepts](#concepts) below apply
+  just the same.
+- **With Python or the shell**: install the `indiek` package and follow
+  this page.
+
+Both write the same archives, so you can switch between them at any time
+([how the pieces fit](/docs/architecture/)).
+
 ## Install
 
-IndieK needs Python 3.14 or newer. The `indiek` package contains both the
+The `indiek` package needs Python 3.14 or newer. The `indiek` package contains both the
 Python SDK and the `ik` command-line tool. It is [hosted on GitHub](https://github.com/indiek/indiek) and [distributed through PyPI](https://pypi.org/project/indiek/).
 
 ```bash
@@ -170,7 +183,10 @@ generations, transcriptions carry an archive's chain of custody forward.
 
 ## Where to go next
 
+- [IndieK Desktop](/docs/desktop/) and the [web UI guide](/docs/web-ui/) —
+  the same, with a graphical interface.
 - [Examples](/docs/examples/) — research notebooks, two-author debates,
   publishing and checking archives, reading an archive without IndieK.
 - [Python SDK reference](/docs/sdk/) and [`ik` CLI reference](/docs/cli/).
+- [Local API](/docs/api/) — to build your own interface.
 - [Format specification](/docs/format/) — for implementers.

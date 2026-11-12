@@ -12,6 +12,7 @@ by their authors, append-only, and verifiable by anyone — with nothing but a
 published specification and standard cryptography.</p>
 <div class="buttons">
 <a class="button primary" href="/docs/intro/">Get started</a>
+<a class="button secondary" href="/docs/desktop/">Desktop app</a>
 <a class="button secondary" href="/docs/mission/">Read the vision</a>
 <a class="button secondary" href="/docs/format/">The specification</a>
 </div>
@@ -46,6 +47,43 @@ print(ik.seal().hash)  # one hash commits to everything
 <div class="card"><h3>Edges carry content</h3><p>A connection between two ideas has its own text, author, tags and history. "Why are these linked?" gets a first-class answer.</p></div>
 <div class="card"><h3>Your vocabulary</h3><p>No fixed ontology. Tags are designed freely, for nodes and for edges, and anyone can annotate a graph with their own key.</p></div>
 <div class="card"><h3>Built to be checked</h3><p>Seals commit to a whole archive in one short hash. Publish it, and anyone can verify their copy — offline, without trusting anyone.</p></div>
+</div>
+</section>
+
+<section class="section">
+<div class="two-col">
+<div markdown="1">
+
+## IndieK Desktop
+
+One app for macOS, Windows and Linux. Open an archive folder, explore its
+knowledge graph, filter and colour it by tags, and write nodes, edges and
+tags, all signed with your key and saved straight into the archive.
+
+- No Python, no terminal, no account: everything runs on your computer and
+  works offline.
+- Your archives stay plain folders, ready for `git`, `ik` and any other tool.
+- The `ik` command line comes with it.
+
+[Install the desktop app →](/docs/desktop/) · [Web UI guide →](/docs/web-ui/)
+
+</div>
+<div markdown="1">
+
+## Four pieces, one format
+
+| Piece | For |
+| --- | --- |
+| [IndieK Desktop](/docs/desktop/) | everyone |
+| [Web UI](/docs/web-ui/) | browsing and writing graphs |
+| [Local API](/docs/api/) | building your own interface |
+| [`indiek` SDK and `ik` CLI](/docs/intro/) | Python and the shell |
+
+All free and open source, all reading and writing the same archives.
+
+[How they fit together →](/docs/architecture/)
+
+</div>
 </div>
 </section>
 
@@ -131,11 +169,12 @@ print(reader.fsck().blob_files)
 <div class="status">
 <span><strong>indiek 1.3.0</strong> — Python SDK and <code>ik</code> CLI</span>
 <span><strong>Format 3.1</strong> — reads every version since 3.0</span>
+<span><strong>IndieK Desktop</strong> — first release coming soon</span>
 <span><strong>1 November 2026</strong> — contributions open</span>
 </div>
 
-The format specification and the `indiek` package are free and open source
-under the Apache License 2.0. Read [the vision](/docs/mission/), then
+The format specification, the `indiek` package, the local API, the web UI
+and the desktop app are free and open source under the Apache License 2.0. Read [the vision](/docs/mission/), then
 [get started](/docs/intro/). If IndieK is useful to you,
 [support it](/docs/support/).
 

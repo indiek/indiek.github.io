@@ -1,7 +1,8 @@
 # indiek.org — website sources
 
 Sources of [indiek.org](https://indiek.org), the documentation website of the
-IndieK archive format and of the `indiek` Python package (SDK and `ik` CLI).
+IndieK archive format, the `indiek` Python package (SDK and `ik` CLI), the
+local API (`indiek-api`), the web UI and the IndieK Desktop App.
 The site is built with Jekyll (GitHub Pages, kramdown in GFM mode, Rouge
 highlighting).
 
@@ -13,6 +14,8 @@ highlighting).
 | `docs/mission.md` | Vision. |
 | `docs/intro.md` | Get started: install, first archive, concepts. |
 | `docs/examples.md` | Worked examples (executed by `scripts/check_site.py`). |
+| `docs/architecture.md` | How the SDK/CLI, local API, web UI and desktop app fit together; versions and releases. |
+| `docs/desktop.md`, `docs/web-ui.md`, `docs/api.md` | Desktop app (install, unsigned-build bypass, author key, keychain), web UI user guide, local API reference. Hand-written from the `indiek-desktop`, `indiek-webui` and `indiek-api` READMEs: update them when those change. |
 | `docs/sdk.md`, `docs/cli.md`, `docs/format.md` | **Generated** by `scripts/sync_docs.py` — do not edit. |
 | `docs/contributing.md`, `docs/license.md` | Project pages. |
 | `_layouts/default.html` | The only layout: top bar, docs sidebar, "On this page" TOC. |

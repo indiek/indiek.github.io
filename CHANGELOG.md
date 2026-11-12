@@ -2,6 +2,20 @@
 
 All notable changes to the indiek.org website are documented here.
 
+## Unreleased — desktop app, web UI and local API
+
+### Added
+- `docs/architecture.md`: the four pieces (indiek SDK/CLI, `indiek-api`, web UI, IndieK Desktop), how the app runs (sidecar, single-use launch link), local and offline guarantees, the shared keychain key, version pins and release outputs.
+- `docs/desktop.md`: download per OS, checksums, installing unsigned builds (macOS 15+ "Open Anyway", the `xattr` fix, Windows SmartScreen, Linux `.deb`/AppImage), first launch and author key, macOS keychain prompts ("Always Allow"), opening/creating archives, "Install ik Command…", key backup, where the key is stored, revoking/deleting it safely, update, uninstall, troubleshooting. Screenshot placeholders (`TODO(owner)`).
+- `docs/web-ui.md`: user guide of the graph explorer (home screen, panes, mouse and keyboard, graph settings, reading items, writing nodes/edges/tags, supersede, tag filters and colours, author key, limitations, running it outside the app).
+- `docs/api.md`: `indiek-api` install and run, serving the web UI, configuration variables, flags, security model, routes, errors, consistency with `ik`, embedding with `create_app`.
+
+### Changed
+- Navigation: "Desktop app" in the top bar; sidebar sections "Apps" (IndieK Desktop, Web UI guide) and new entries Architecture and Local API. This lifts the 2026-10-25 decision that the site does not mention the desktop app (owner request 2026-11-12).
+- Home page: "Desktop app" button, "IndieK Desktop" and "Four pieces, one format" section, desktop status line, licence sentence covers every project.
+- Get started: "Two ways in" (desktop app or Python/shell) and links to the new pages.
+- Contributing: the four repositories with their stacks, per-repository check commands, rules for tags, API/UI contract changes and loopback-only API.
+
 ## 2026-10-25 — donation instructions
 
 ### Added

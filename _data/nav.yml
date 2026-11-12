@@ -4,6 +4,8 @@ main:
     url: /docs/mission/
   - title: Get started
     url: /docs/intro/
+  - title: Desktop app
+    url: /docs/desktop/
   - title: SDK
     url: /docs/sdk/
   - title: CLI
@@ -24,12 +26,22 @@ docs:
         url: /docs/intro/
       - title: Examples
         url: /docs/examples/
+      - title: Architecture
+        url: /docs/architecture/
+  - section: Apps
+    pages:
+      - title: IndieK Desktop
+        url: /docs/desktop/
+      - title: Web UI guide
+        url: /docs/web-ui/
   - section: Reference
     pages:
       - title: Python SDK
         url: /docs/sdk/
       - title: ik CLI
         url: /docs/cli/
+      - title: Local API
+        url: /docs/api/
       - title: Format specification
         url: /docs/format/
   - section: Project
