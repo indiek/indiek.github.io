@@ -11,16 +11,15 @@ contains the [web UI](/docs/web-ui/), the [local API](/docs/api/) and the
 entirely on your computer and works offline
 ([how it works](/docs/architecture/)).
 
-> **Status: the first release is coming soon.** Until it is published on
-> the [releases page](https://github.com/indiek/indiek-desktop/releases),
-> you can run the app from source: see the
-> [desktop repository's README](https://github.com/indiek/indiek-desktop#run-from-source-development-mode).
+> **Latest release: [IndieK Desktop 0.2.0](https://github.com/indiek/indiek-desktop/releases/tag/0.2.0)**
+> (13 November 2026), the first public release.
 
 ## Download
 
 Download the installer for your system from the
-[releases page](https://github.com/indiek/indiek-desktop/releases). In the
-file names, `<version>` stands for the version number, for example `0.2.0`.
+[latest release](https://github.com/indiek/indiek-desktop/releases/latest)
+(all versions: [releases page](https://github.com/indiek/indiek-desktop/releases)).
+In the file names, `<version>` stands for the version number, for example `0.2.0`.
 
 | System | File | Notes |
 | --- | --- | --- |

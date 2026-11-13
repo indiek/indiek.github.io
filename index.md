@@ -169,7 +169,7 @@ print(reader.fsck().blob_files)
 <div class="status">
 <span><strong>indiek 1.3.0</strong> — Python SDK and <code>ik</code> CLI</span>
 <span><strong>Format 3.1</strong> — reads every version since 3.0</span>
-<span><strong>IndieK Desktop</strong> — first release coming soon</span>
+<span><strong>IndieK Desktop 0.2.0</strong> — <a href="https://github.com/indiek/indiek-desktop/releases/latest">macOS, Windows, Linux</a></span>
 <span><strong>1 November 2026</strong> — contributions open</span>
 </div>
 

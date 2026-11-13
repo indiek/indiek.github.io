@@ -2,7 +2,9 @@
 
 All notable changes to the indiek.org website are documented here.
 
-## Unreleased — desktop app, web UI and local API
+## Unreleased
+
+## 2026-11-13 — desktop app, web UI and local API
 
 ### Added
 - `docs/architecture.md`: the four pieces (indiek SDK/CLI, `indiek-api`, web UI, IndieK Desktop), how the app runs (sidecar, single-use launch link), local and offline guarantees, the shared keychain key, version pins and release outputs.
@@ -12,6 +14,7 @@ All notable changes to the indiek.org website are documented here.
 - Site icon (FOSSDOCS:SITE-FAVICON): the IndieK hanko logo, same as the desktop app icon — `favicon.ico` (from the app's `icon.ico`), `assets/img/icon-32.png`, `assets/img/apple-touch-icon.png` (180 px), linked from `_layouts/default.html`. The site had no icon before. The top bar shows the same logo (`assets/img/logo-64.png`, 28 px) next to "IndieK", replacing the ◆ mark.
 
 ### Changed
+- IndieK Desktop 0.2.0 is out: `docs/desktop.md` links the latest release (status note replaced), the home page status line links the installers.
 - Navigation: "Desktop app" in the top bar; sidebar sections "Apps" (IndieK Desktop, Web UI guide) and new entries Architecture and Local API. This lifts the 2026-10-25 decision that the site does not mention the desktop app (owner request 2026-11-12).
 - Home page: "Desktop app" button, "IndieK Desktop" and "Four pieces, one format" section, desktop status line, licence sentence covers every project.
 - Get started: "Two ways in" (desktop app or Python/shell) and links to the new pages.
