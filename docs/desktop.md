@@ -66,8 +66,10 @@ On macOS 14 and older, step 2 offers **Open** after a right-click (or
 Control-click) on the app → **Open**.
 
 If macOS says *"IndieK" is damaged and can't be opened*, the app is not
-damaged: macOS says this about some unsigned apps downloaded from the
-internet. Move IndieK to Applications, then run, once, in Terminal:
+damaged: the first test builds lacked a complete (ad-hoc) signature, and
+macOS reports this for such apps downloaded from the internet. Newer builds
+show **Open Anyway** as above. For an older build, move IndieK to
+Applications, then run, once, in Terminal:
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/IndieK.app
@@ -276,7 +278,7 @@ The app leaves behind, on purpose:
 | macOS: *"IndieK" is damaged and can't be opened* | Run the `xattr` command of [Install → macOS](#macos) |
 | Windows: *Windows protected your PC* | **More info → Run anyway** |
 | The window stays on *Starting the local IndieK server…* for a long time | The first launch after an install or update can take about 15 s on macOS. If it ends with *The IndieK server stopped before it was ready*, see the next row |
-| *The IndieK server could not be started* or *stopped before it was ready* | Quit and reopen the app. If it persists, start it from a terminal to see the error (macOS: `/Applications/IndieK.app/Contents/MacOS/IndieK`) and report it |
+| *The IndieK server could not be started* or *stopped before it was ready* | Quit and reopen the app. If it persists, start it from a terminal to see the error (macOS: `/Applications/IndieK.app/Contents/MacOS/indiek-desktop`) and report it |
 | Writes fail with *author key missing* | Create or import a key: [Your author key](#your-author-key) |
 | The header chip says `env` and ignores the key you created | `IK_AUTHOR_PRIVATE_KEY` is set in the app's environment and takes precedence: remove it |
 | Linux: *keychain unavailable* | No Secret Service keyring is running: install and unlock GNOME Keyring or KWallet, or set `IK_AUTHOR_PRIVATE_KEY` |

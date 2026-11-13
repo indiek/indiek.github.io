@@ -16,6 +16,9 @@ All notable changes to the indiek.org website are documented here.
 - Get started: "Two ways in" (desktop app or Python/shell) and links to the new pages.
 - Contributing: the four repositories with their stacks, per-repository check commands, rules for tags, API/UI contract changes and loopback-only API.
 
+### Fixed
+- `docs/desktop.md`: the macOS "is damaged" message is explained as a defect of the first test builds (incomplete ad-hoc signature, fixed in the app); newer builds show "Open Anyway", the `xattr` command stays for older builds. Troubleshooting: the macOS executable is `Contents/MacOS/indiek-desktop`, not `…/IndieK`.
+
 ## 2026-10-25 — donation instructions
 
 ### Added
