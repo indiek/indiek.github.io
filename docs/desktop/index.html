@@ -183,8 +183,10 @@ remembers your choice: later launches open directly.</li>
 Control-click) on the app → <strong>Open</strong>.</p>
 
 <p>If macOS says <em>“IndieK” is damaged and can’t be opened</em>, the app is not
-damaged: macOS says this about some unsigned apps downloaded from the
-internet. Move IndieK to Applications, then run, once, in Terminal:</p>
+damaged: the first test builds lacked a complete (ad-hoc) signature, and
+macOS reports this for such apps downloaded from the internet. Newer builds
+show <strong>Open Anyway</strong> as above. For an older build, move IndieK to
+Applications, then run, once, in Terminal:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>xattr <span class="nt">-dr</span> com.apple.quarantine /Applications/IndieK.app
 </code></pre></div></div>
@@ -461,7 +463,7 @@ only if you no longer need this identity);</li>
     </tr>
     <tr>
       <td><em>The IndieK server could not be started</em> or <em>stopped before it was ready</em></td>
-      <td>Quit and reopen the app. If it persists, start it from a terminal to see the error (macOS: <code class="language-plaintext highlighter-rouge">/Applications/IndieK.app/Contents/MacOS/IndieK</code>) and report it</td>
+      <td>Quit and reopen the app. If it persists, start it from a terminal to see the error (macOS: <code class="language-plaintext highlighter-rouge">/Applications/IndieK.app/Contents/MacOS/indiek-desktop</code>) and report it</td>
     </tr>
     <tr>
       <td>Writes fail with <em>author key missing</em></td>
