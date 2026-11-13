@@ -9,6 +9,7 @@ All notable changes to the indiek.org website are documented here.
 - `docs/desktop.md`: download per OS, checksums, installing unsigned builds (macOS 15+ "Open Anyway", the `xattr` fix, Windows SmartScreen, Linux `.deb`/AppImage), first launch and author key, macOS keychain prompts ("Always Allow"), opening/creating archives, "Install ik Command…", key backup, where the key is stored, revoking/deleting it safely, update, uninstall, troubleshooting. Screenshot placeholders (`TODO(owner)`).
 - `docs/web-ui.md`: user guide of the graph explorer (home screen, panes, mouse and keyboard, graph settings, reading items, writing nodes/edges/tags, supersede, tag filters and colours, author key, limitations, running it outside the app).
 - `docs/api.md`: `indiek-api` install and run, serving the web UI, configuration variables, flags, security model, routes, errors, consistency with `ik`, embedding with `create_app`.
+- Site icon (FOSSDOCS:SITE-FAVICON): the IndieK hanko logo, same as the desktop app icon — `favicon.ico` (from the app's `icon.ico`), `assets/img/icon-32.png`, `assets/img/apple-touch-icon.png` (180 px), linked from `_layouts/default.html`. The site had no icon before. The top bar shows the same logo (`assets/img/logo-64.png`, 28 px) next to "IndieK", replacing the ◆ mark.
 
 ### Changed
 - Navigation: "Desktop app" in the top bar; sidebar sections "Apps" (IndieK Desktop, Web UI guide) and new entries Architecture and Local API. This lifts the 2026-10-25 decision that the site does not mention the desktop app (owner request 2026-11-12).
