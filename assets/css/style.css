@@ -69,14 +69,20 @@ a:hover {
   font-size: 1.2rem;
   letter-spacing: .02em;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
 }
 
 .brand:hover {
   color: #fff;
 }
 
-.brand-mark {
-  color: #f2b680;
+.brand-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .topnav {
