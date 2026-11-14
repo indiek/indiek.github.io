@@ -188,7 +188,7 @@ API.</p>
 
 <p><code class="language-plaintext highlighter-rouge">indiek.keys</code> stores one author key per OS user in the operating system’s
 keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service),
-shared by every program built on <code class="language-plaintext highlighter-rouge">indiek</code>, such as <code class="language-plaintext highlighter-rouge">ik</code>. Needs the <code class="language-plaintext highlighter-rouge">keychain</code> (or <code class="language-plaintext highlighter-rouge">cli</code>)
+shared by <code class="language-plaintext highlighter-rouge">ik</code> and the IndieK Desktop App. Needs the <code class="language-plaintext highlighter-rouge">keychain</code> (or <code class="language-plaintext highlighter-rouge">cli</code>)
 extra.</p>
 
 <div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">indiek</span> <span class="kn">import</span> <span class="n">keys</span>
@@ -240,7 +240,7 @@ seal log; <code class="language-plaintext highlighter-rouge">ValueError</code> f
 <code class="language-plaintext highlighter-rouge">lock_timeout</code>.</p>
 
 <p><strong>Several writers on one machine.</strong> Writes are serialised across processes
-(for example two <code class="language-plaintext highlighter-rouge">ik</code> commands on the same archive): every write holds
+(for example the desktop app and <code class="language-plaintext highlighter-rouge">ik</code> on the same archive): every write holds
 the advisory lock file <code class="language-plaintext highlighter-rouge">.ik.lock</code> at the archive root, re-reads the archive
 inside the lock, so it chains onto the latest event even if another process
 wrote after this <code class="language-plaintext highlighter-rouge">Archive</code> was opened, then appends and releases. A write
