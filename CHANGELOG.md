@@ -4,6 +4,13 @@ All notable changes to the indiek.org website are documented here.
 
 ## Unreleased
 
+### Added
+- `scripts/sync_docs_release.sh [TAG]`: regenerates the SDK, CLI and format pages from a released tag of the indiek package (newest `X.Y.Z` by default), extracted with `git archive`, then runs `check_site.py` against that version; the package's working copy (e.g. a `dev` branch with unreleased features) never reaches the site (FOSSDOCS:SYNC-FROM-RELEASE).
+
+### Changed
+- `scripts/sync_docs.py`: dropped the rule that reworded or rejected mentions of the desktop app (owner decision 2026-10-25, lifted); `docs/sdk.md` and `docs/cli.md` regenerated from indiek 1.3.0 now mention the desktop app in three places (keychain, concurrent writers) (FOSSDOCS:SYNC-DOCS-DESKTOP).
+- README: "Updating the generated reference pages" uses `sync_docs_release.sh`.
+
 ## 2026-11-13 — desktop app, web UI and local API
 
 ### Added

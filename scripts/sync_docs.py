@@ -1,8 +1,10 @@
 """Generate the reference pages of indiek.org from the indiek package.
 
-    uv run --project ../public_archive python scripts/sync_docs.py [PACKAGE_DIR]
+    uv run --project PACKAGE_DIR python scripts/sync_docs.py [PACKAGE_DIR]
 
 Run from the site root; PACKAGE_DIR defaults to ``../public_archive``.
+Normally run through ``scripts/sync_docs_release.sh [TAG]``, which points
+PACKAGE_DIR at a released tag of the package (never its working copy).
 
 * ``docs/format.md``  <- ``src/indiek/spec/SPEC.md`` (the normative spec; the
   site never rewrites it, owner decision D19) + an appendix outlining
@@ -36,14 +38,6 @@ EXTERNAL_ANCHORS = {
     "format-versions": "/docs/format/#21-versioning",
     "contributing": "/docs/contributing/",
     "license": "/docs/license/",
-}
-# The site does not mention the desktop application yet (owner decision
-# 2026-10-25): README phrases that do are reworded; any other mention stops
-# the script.
-NO_DESKTOP = {
-    "shared by `ik` and the IndieK Desktop App.": "shared by every program built on `indiek`, such as `ik`.",
-    "(for example the desktop app and `ik` on the same archive)": "(for example two `ik` commands on the same archive)",
-    "(shared with the desktop app)": "(shared with every program built on `indiek`)",
 }
 
 
@@ -129,10 +123,6 @@ def rewrite_links(pages: dict[str, list[str]]) -> dict[str, str]:
             r"\]\(#([^)]+)\)", lambda m: f"]({target(page, m.group(1))})", text
         )
         text = text.replace("](https://indiek.org/", "](/")
-        for phrase, neutral in NO_DESKTOP.items():
-            text = text.replace(phrase, neutral)
-        if re.search(r"desktop", text, re.IGNORECASE):
-            raise SystemExit(f"docs/{page}.md: unexpected mention of the desktop app")
         texts[page] = text
     return texts
 

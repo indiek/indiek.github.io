@@ -105,7 +105,7 @@ Generates a fresh Ed25519 author key. Needs neither a key nor an archive.
 | Flag | Meaning |
 | --- | --- |
 | `--write` | Store the seed in the `--dot-env` file (mode `600`) instead of printing it. |
-| `--keychain` | Store the seed in the OS keychain (shared with every program built on `indiek`) instead of printing it. Exclusive with `--write`. |
+| `--keychain` | Store the seed in the OS keychain (shared with the desktop app) instead of printing it. Exclusive with `--write`. |
 | `--force` | With `--write` / `--keychain`, replace a key already stored there. The old key is lost. |
 
 Without `--write`: prints `IK_AUTHOR_PRIVATE_KEY=<64 hex>` on stdout and

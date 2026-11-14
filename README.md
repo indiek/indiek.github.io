@@ -27,12 +27,19 @@ highlighting).
 
 The format page is the package's normative `SPEC.md`; the SDK and CLI pages
 are sections of the package `README.md` (whose examples the package tests
-execute). After changing either, regenerate from the site root, with the
-package folder next to the site as `../public_archive`:
+execute). The site documents the **released** package only: regenerate from
+the site root, with the package repository next to the site as
+`../public_archive`:
 
 ```bash
-uv run --project ../public_archive python scripts/sync_docs.py
+scripts/sync_docs_release.sh          # newest X.Y.Z tag of ../public_archive
+scripts/sync_docs_release.sh 1.3.0    # or a given release tag
 ```
+
+The script extracts the tag with `git archive` (read-only) into a temporary
+folder, runs `scripts/sync_docs.py` on it with that version of the package,
+then `scripts/check_site.py`. The package repository's branch and working
+copy are never used, so unreleased work there never reaches the site.
 
 ## Checking the site
 

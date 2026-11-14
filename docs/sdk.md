@@ -71,7 +71,7 @@ assert same.public_key_hex == author.public_key_hex  # what events record as aut
 
 `indiek.keys` stores one author key per OS user in the operating system's
 keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service),
-shared by every program built on `indiek`, such as `ik`. Needs the `keychain` (or `cli`)
+shared by `ik` and the IndieK Desktop App. Needs the `keychain` (or `cli`)
 extra.
 
 ```py
@@ -123,7 +123,7 @@ seal log; `ValueError` for an unknown `verify` level or a negative
 `lock_timeout`.
 
 **Several writers on one machine.** Writes are serialised across processes
-(for example two `ik` commands on the same archive): every write holds
+(for example the desktop app and `ik` on the same archive): every write holds
 the advisory lock file `.ik.lock` at the archive root, re-reads the archive
 inside the lock, so it chains onto the latest event even if another process
 wrote after this `Archive` was opened, then appends and releases. A write
